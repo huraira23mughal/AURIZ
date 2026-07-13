@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: "https://huraira23mughal.pythonanywhere.com/api/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,7 +31,7 @@ API.interceptors.response.use(
 
       if (refresh) {
         try {
-          const res = await axios.post("http://127.0.0.1:8000/api/auth/refresh/", {
+          const res = await axios.post("https://huraira23mughal.pythonanywhere.com/api/auth/refresh/", {
             refresh,
           });
           const newAccess = res.data.access;
