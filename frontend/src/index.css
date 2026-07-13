@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #070A12;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0D131F; }
+::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 20px; }
+
+/* ── Glass Card ── */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-gold {
+  background: rgba(212, 175, 55, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* ── Gold Buttons ── */
+.goldButton {
+  background: linear-gradient(135deg, #FFD978, #D4AF37);
+  color: black;
+  font-weight: 700;
+  transition: 0.35s;
+  border-radius: 16px;
+}
+
+.goldButton:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+}
+
+.goldPillBtn {
+  background: linear-gradient(135deg, #FFD978, #D4AF37);
+  color: #000;
+  font-weight: 700;
+  border-radius: 50px;
+  transition: 0.3s;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.goldPillBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.7);
+}
+
+/* ── Gold Gradient Text ── */
+.gold-text {
+  background: linear-gradient(135deg, #FFD978, #D4AF37, #B8860B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Gold Progress Bar ── */
+.progress-gold {
+  background: linear-gradient(90deg, #FFD978, #D4AF37);
+  border-radius: 50px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* ── Section Layout ── */
+.section {
+  width: 92%;
+  max-width: 1400px;
+  margin: auto;
+}
+
+/* ── Mobile Dashboard Layout ── */
+.mobile-page {
+  background: #0D131F;
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  padding-bottom: 90px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: rgba(13, 19, 31, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+  z-index: 100;
+  padding: 8px 0 16px;
+}
+
+/* ── Gold Glow Effects ── */
+.gold-glow {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 0 40px rgba(212, 175, 55, 0.2);
+}
+
+.gold-glow-text {
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+}
+
+/* ── Badge ── */
+.gold-badge {
+  background: linear-gradient(135deg, #FFD978, #D4AF37);
+  color: #000;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* ── Chart grid ── */
+.chart-grid-line {
+  stroke: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Animations ── */
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
