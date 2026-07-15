@@ -21,6 +21,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import TasksPage from "./pages/TasksPage";
 import AssetsPage from "./pages/AssetsPage";
+import FinancePage from "./pages/FinancePage";
 
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -91,6 +92,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AssetsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/finance"
+            element={
+              <ProtectedRoute>
+                <FinancePage />
               </ProtectedRoute>
             }
           />

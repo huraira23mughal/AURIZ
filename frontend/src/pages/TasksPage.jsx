@@ -1,250 +1,164 @@
-import { motion } from "framer-motion";
+import React, { useState } from "react";
 import MobileLayout from "../components/common/MobileLayout";
 import BottomNav from "../components/common/BottomNav";
 
-const stats = [
-  {
-    label: "My Vouchers",
-    value: 245,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M20 12V22H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Tasks Completed",
-    value: 18,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Will Complete",
-    value: 7,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="#D4AF37" strokeWidth="1.5"/>
-        <path d="M12 6v6l4 2" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-];
-
-const tasks = [
-  {
-    id: 1,
-    title: "Watch 5 Ads Daily",
-    reward: 10,
-    status: "inProgress",
-    progress: 2,
-    total: 5,
-    progressPct: 40,
-    actionLabel: "Start Task ▶",
-  },
-  {
-    id: 2,
-    title: "Daily Deposit $100",
-    reward: 15,
-    status: "completed",
-    progress: 100,
-    total: 100,
-    progressPct: 100,
-    actionLabel: "Claim Reward %",
-  },
-  {
-    id: 3,
-    title: "Watch 20 Ads",
-    reward: 30,
-    status: "unstarted",
-    progress: 0,
-    total: 20,
-    progressPct: 0,
-    actionLabel: "Start Task ▶",
-  },
-];
-
-const statusConfig = {
-  inProgress: {
-    label: "In Progress",
-    bg: "rgba(59,130,246,0.15)",
-    border: "rgba(59,130,246,0.35)",
-    color: "#60a5fa",
-  },
-  completed: {
-    label: "Completed",
-    bg: "rgba(34,197,94,0.15)",
-    border: "rgba(34,197,94,0.35)",
-    color: "#4ade80",
-  },
-  unstarted: {
-    label: "Not Started",
-    bg: "rgba(156,163,175,0.1)",
-    border: "rgba(156,163,175,0.2)",
-    color: "#9ca3af",
-  },
-};
-
 export default function TasksPage() {
+  const [vouchers, setVouchers] = useState(245);
+  const [claimedCheckin, setClaimedCheckin] = useState(false);
+  const [claimedAudio, setClaimedAudio] = useState(false);
+  
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioSeconds, setAudioSeconds] = useState(0);
+  const [audioPercent, setAudioPercent] = useState(0);
+  
+  const handleCheckin = () => {
+    if (claimedCheckin) return;
+    setVouchers(prev => prev + 5);
+    setClaimedCheckin(true);
+    alert("Daily check-in reward claimed! +5 Vouchers");
+  };
+
+  const playPromo = () => {
+    if (isPlayingAudio) return;
+    setIsPlayingAudio(true);
+    setAudioSeconds(0);
+    setAudioPercent(0);
+
+    const interval = setInterval(() => {
+      setAudioSeconds(prev => {
+        const next = prev + 1;
+        const pct = (next / 15) * 100;
+        setAudioPercent(pct);
+        if (next >= 15) {
+          clearInterval(interval);
+          setIsPlayingAudio(false);
+        }
+        return next;
+      });
+    }, 1000);
+  };
+
+  const handleClaimAudio = () => {
+    if (audioSeconds < 15 || claimedAudio) return;
+    setVouchers(prev => prev + 10);
+    setClaimedAudio(true);
+    alert("Audio listening voucher claimed! +10 Vouchers");
+  };
+
+  const handleInvite = () => {
+    const inviteLink = `https://auriz.com/register?code=TDS53m`;
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      alert("Invite link copied to clipboard: " + inviteLink);
+    });
+  };
+
   return (
     <MobileLayout>
-      {/* ── Header ── */}
+      {/* Header */}
       <div
         className="px-5 pt-12 pb-5"
         style={{
-          background: "linear-gradient(180deg, rgba(212,175,55,0.06) 0%, transparent 100%)",
-          borderBottom: "1px solid rgba(212,175,55,0.1)",
+          background: "linear-gradient(180deg, rgba(212, 175, 55, 0.04) 0%, transparent 100%)",
+          borderBottom: "1px solid rgba(212, 175, 55, 0.1)",
         }}
       >
         <h1 className="text-2xl font-black text-white">
-          Daily <span className="gold-text">Tasks</span>
+          Earning <span style={{ color: "#ffd066" }}>Tasks</span>
         </h1>
         <p className="text-sm text-gray-400 mt-1">
-          Complete tasks to earn rewards & climb the leaderboard.
+          Complete daily tasks to accumulate voucher points.
         </p>
       </div>
 
       <div className="px-5 py-5 space-y-5">
-        {/* ── Stats Row ── */}
-        <div className="grid grid-cols-3 gap-3">
-          {stats.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08, duration: 0.35 }}
-              className="glass rounded-2xl p-3 flex flex-col items-center text-center"
-              style={{ border: "1px solid rgba(212,175,55,0.15)" }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-2"
-                style={{ background: "rgba(212,175,55,0.1)" }}
-              >
-                {s.icon}
-              </div>
-              <p className="text-xl font-black gold-text">{s.value}</p>
-              <p className="text-[10px] text-gray-400 leading-tight mt-0.5">{s.label}</p>
-            </motion.div>
-          ))}
+        
+        {/* Voucher summary card */}
+        <div className="bg-gradient-to-br from-[#ffd978] to-[#b8860b] rounded-3xl p-5 shadow-lg text-black">
+          <span className="text-[10px] text-black/70 block uppercase tracking-wider font-bold">My Vouchers</span>
+          <h2 className="text-3xl font-black text-black mt-1 mb-3">{vouchers}</h2>
+          <p className="text-[11px] text-black/90">
+            Completed: <strong className="text-black">{(claimedCheckin ? 1 : 0) + (claimedAudio ? 1 : 0)}/3 tasks</strong>
+          </p>
         </div>
 
-        {/* ── Section Title ── */}
-        <div className="flex items-center gap-3">
-          <h2
-            className="text-lg font-black gold-text"
-          >
-            Daily Tasks
-          </h2>
-          <div
-            className="h-px flex-1"
-            style={{ background: "linear-gradient(90deg, rgba(212,175,55,0.4), transparent)" }}
-          />
-        </div>
-
-        {/* ── Task Cards ── */}
+        {/* Tasks list */}
         <div className="space-y-4">
-          {tasks.map((task, i) => {
-            const s = statusConfig[task.status];
-            return (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.1, duration: 0.4 }}
-                className="glass rounded-3xl p-5"
-                style={{
-                  border: task.status === "completed"
-                    ? "1px solid rgba(34,197,94,0.25)"
-                    : task.status === "inProgress"
-                    ? "1px solid rgba(212,175,55,0.25)"
-                    : "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                {/* Top row */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="text-base font-bold text-white">{task.title}</h3>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="gold-badge">⚡{task.reward}</span>
-                      <span
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}
-                      >
-                        {s.label}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right ml-3">
-                    <p
-                      className="text-2xl font-black"
-                      style={{ color: task.status === "completed" ? "#4ade80" : "#FFD978" }}
-                    >
-                      {task.status === "completed" ? "100%" : `${task.progress}/${task.total}`}
-                    </p>
-                    <p className="text-[10px] text-gray-500">
-                      {task.status === "completed" ? "Done" : "Progress"}
-                    </p>
-                  </div>
-                </div>
+          
+          {/* Task 1 */}
+          <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-center gap-4">
+            <div className="flex-1">
+              <span className="inline-block text-[9px] font-bold text-[#ffd066] bg-[#ffd066]/10 border border-[#ffd066]/20 px-2 py-0.5 rounded uppercase mb-1">
+                Daily
+              </span>
+              <h4 className="text-xs font-black text-white">Daily Check-in Reward</h4>
+              <p className="text-[10px] text-gray-400 mt-0.5">Claim your daily listening voucher support.</p>
+              <div className="text-[10px] font-bold text-[#ffd978] mt-1.5">+5 Vouchers</div>
+            </div>
+            <button
+              onClick={handleCheckin}
+              className={`px-4 py-2 text-[11px] font-black rounded-xl transition ${claimedCheckin ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" : "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black hover:opacity-90 cursor-pointer"}`}
+            >
+              {claimedCheckin ? "Claimed" : "Claim"}
+            </button>
+          </div>
 
-                {/* Progress Bar */}
-                <div className="h-2.5 rounded-full bg-white/10 mb-4 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${task.progressPct}%` }}
-                    transition={{ duration: 1.2, delay: 0.2 + i * 0.15 }}
-                    className="h-full rounded-full"
-                    style={{
-                      background: task.progressPct === 100
-                        ? "linear-gradient(90deg, #4ade80, #22c55e)"
-                        : task.progressPct === 0
-                        ? "transparent"
-                        : "linear-gradient(90deg, #FFD978, #D4AF37)",
-                      boxShadow: task.progressPct > 0
-                        ? task.progressPct === 100
-                          ? "0 0 8px rgba(74,222,128,0.5)"
-                          : "0 0 8px rgba(212,175,55,0.5)"
-                        : "none",
-                    }}
-                  />
+          {/* Task 2 */}
+          <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-center gap-4">
+            <div className="flex-1">
+              <span className="inline-block text-[9px] font-bold text-sky-400 bg-sky-400/10 border border-sky-400/20 px-2 py-0.5 rounded uppercase mb-1">
+                Activity
+              </span>
+              <h4 className="text-xs font-black text-white">Watch & Listen Release Promo</h4>
+              <p className="text-[10px] text-gray-400 mt-0.5">Play 15s audio clip of upcoming album releases.</p>
+              
+              {/* Audio progress bar */}
+              <div className="flex items-center gap-2 mt-2.5 bg-white/[0.02] border border-white/5 p-1.5 rounded-lg max-w-[200px]">
+                <button
+                  type="button"
+                  onClick={playPromo}
+                  className={`text-[9px] font-bold px-2 py-1 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black rounded cursor-pointer ${isPlayingAudio ? "opacity-50" : ""}`}
+                >
+                  {isPlayingAudio ? "Playing" : "▶ Play"}
+                </button>
+                <div className="flex-1 h-1 bg-white/10 rounded overflow-hidden">
+                  <div className="h-full bg-[#ffd066] transition-all duration-100" style={{ width: `${audioPercent}%` }} />
                 </div>
+                <span className="text-[8px] font-mono text-gray-400">
+                  0:{audioSeconds < 10 ? "0" + audioSeconds : audioSeconds} / 0:15
+                </span>
+              </div>
+              
+              <div className="text-[10px] font-bold text-[#ffd978] mt-1.5">+10 Vouchers</div>
+            </div>
+            <button
+              onClick={handleClaimAudio}
+              disabled={audioSeconds < 15 || claimedAudio}
+              className={`px-4 py-2 text-[11px] font-black rounded-xl transition ${claimedAudio ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" : audioSeconds >= 15 ? "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black cursor-pointer" : "bg-white/5 text-gray-500 cursor-not-allowed"}`}
+            >
+              {claimedAudio ? "Claimed" : "Claim"}
+            </button>
+          </div>
 
-                {/* Bottom row */}
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">
-                    {task.status === "unstarted"
-                      ? "Tap to begin earning"
-                      : task.status === "completed"
-                      ? "🎉 Task complete!"
-                      : `${task.total - task.progress} remaining`}
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="text-xs font-bold px-4 py-2 rounded-full"
-                    style={
-                      task.status === "completed"
-                        ? {
-                            background: "linear-gradient(135deg, #4ade80, #22c55e)",
-                            color: "#000",
-                            boxShadow: "0 0 15px rgba(74,222,128,0.4)",
-                          }
-                        : {
-                            background: "linear-gradient(135deg, #FFD978, #D4AF37)",
-                            color: "#000",
-                            boxShadow: "0 0 15px rgba(212,175,55,0.4)",
-                          }
-                    }
-                  >
-                    {task.actionLabel}
-                  </motion.button>
-                </div>
-              </motion.div>
-            );
-          })}
+          {/* Task 3 */}
+          <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-center gap-4">
+            <div className="flex-1">
+              <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded uppercase mb-1">
+                Ref
+              </span>
+              <h4 className="text-xs font-black text-white">Invite 1 subordinate to join</h4>
+              <p className="text-[10px] text-gray-400 mt-0.5">Grow your investment team network.</p>
+              <div className="text-[10px] font-bold text-[#ffd978] mt-1.5">+25 Vouchers</div>
+            </div>
+            <button
+              onClick={handleInvite}
+              className="px-4 py-2 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[11px] font-black rounded-xl cursor-pointer hover:opacity-90 transition"
+            >
+              Invite
+            </button>
+          </div>
+
         </div>
+
       </div>
 
       <BottomNav activePage="tasks" />
