@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   FaShieldAlt, FaUsers, FaGlobe, FaTrophy,
   FaCheckCircle, FaArrowRight,
@@ -22,7 +23,7 @@ const values = [
 
 function About() {
   return (
-    <section id="about" className="section py-24">
+    <section id="about" className="section py-14 md:py-24 px-4 md:px-8">
       {/* Header */}
       <div className="text-center mb-16">
         <motion.p
@@ -44,14 +45,14 @@ function About() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
+      <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center mb-12 md:mb-20">
         {/* Left – Story */}
         <motion.div
           initial={{ opacity: 0, x: -60 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <div className="space-y-5 text-gray-400 text-lg leading-8">
+          <div className="space-y-4 text-gray-400 text-base md:text-lg leading-7 md:leading-8">
             <p>
               <span className="gold-text font-black text-xl">AURIZ</span> was founded with a single vision: to make premium investment opportunities accessible to everyone — regardless of their starting capital or location.
             </p>
@@ -79,17 +80,15 @@ function About() {
             ))}
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => {
-              const el = document.querySelector("#plans");
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="goldButton px-10 py-4 mt-10 flex items-center gap-2 text-sm font-bold"
-          >
-            Start Investing Today <FaArrowRight />
-          </motion.button>
+          <Link to="/plans">
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="goldButton px-8 md:px-10 py-4 mt-8 md:mt-10 flex items-center gap-2 text-sm font-bold"
+            >
+              Start Investing Today <FaArrowRight />
+            </motion.button>
+          </Link>
         </motion.div>
 
         {/* Right – Visual */}

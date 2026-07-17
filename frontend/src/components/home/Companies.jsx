@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { FaArrowRight, FaChartLine } from "react-icons/fa";
 
 const companies = [
@@ -56,7 +57,7 @@ const riskColor = {
 
 function Companies() {
   return (
-    <section id="companies" className="section py-24">
+    <section id="companies" className="section py-14 md:py-24 px-4 md:px-8">
       {/* Section Header */}
       <div className="text-center mb-16">
         <motion.p
@@ -134,17 +135,15 @@ function Companies() {
                 </div>
 
                 <div className="mt-auto">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => {
-                      const el = document.querySelector("#plans");
-                      if (el) el.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="goldButton w-full py-3 text-sm flex items-center justify-center gap-2"
-                  >
-                    <FaChartLine size={12} /> Invest Now
-                  </motion.button>
+                  <Link to="/plans">
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="goldButton w-full py-3 text-sm flex items-center justify-center gap-2"
+                    >
+                      <FaChartLine size={12} /> Invest Now
+                    </motion.button>
+                  </Link>
                 </div>
               </div>
             </motion.div>

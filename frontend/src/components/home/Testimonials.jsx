@@ -24,9 +24,9 @@ const testimonials = [
 
 function Testimonials() {
     return (
-        <section className="section py-16 md:py-24">
+        <section className="section py-12 md:py-24 px-4 md:px-8">
 
-            <div className="text-center mb-16">
+            <div className="text-center mb-10 md:mb-16">
 
                 <p className="text-yellow-400 uppercase tracking-[6px]">
                     Testimonials
@@ -43,7 +43,7 @@ function Testimonials() {
 
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-8">
 
                 {testimonials.map((user, index) => (
 
@@ -53,7 +53,7 @@ function Testimonials() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.2 }}
                         whileHover={{ y: -8, scale: 1.02 }}
-                        className="glass rounded-3xl p-8"
+                        className="glass rounded-3xl p-6 md:p-8"
                     >
 
                         <div className="flex gap-1 text-yellow-400 mb-5">

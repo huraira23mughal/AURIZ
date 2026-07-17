@@ -1,36 +1,33 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
-import { FaBars, FaTimes, FaArrowRight, FaChartPie, FaSignOutAlt } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { FaBars, FaTimes, FaChartPie, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 
 const menu = [
-  { label: "Home", href: "#home" },
-  { label: "Companies", href: "#companies" },
-  { label: "Plans", href: "#plans" },
-  { label: "News", href: "#news" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", to: "/" },
+  { label: "Companies", to: "/companies" },
+  { label: "Plans", to: "/plans" },
+  { label: "News", to: "/news" },
+  { label: "About", to: "/about" },
+  { label: "Contact", to: "/contact" },
 ];
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("Home");
   const { isAuthenticated, logout, user } = useAuth();
+  const location = useLocation();
 
-  useEffect(() => {
+  // Track scroll for glass effect
+  useState(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  });
 
-  const handleNav = (item) => {
-    setActive(item.label);
-    setMenuOpen(false);
-    const el = document.querySelector(item.href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
+  const isActive = (to) =>
+    to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
 
   return (
     <motion.nav
@@ -43,9 +40,9 @@ function Navbar() {
           : "bg-transparent"
       }`}
     >
-      <div className="section flex justify-between items-center py-4">
+      <div className="section flex justify-between items-center py-4 px-4 md:px-8">
         {/* Logo */}
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3">
           <motion.div
             animate={{ boxShadow: ["0 0 10px #d4af37aa", "0 0 25px #d4af37cc", "0 0 10px #d4af37aa"] }}
             transition={{ repeat: Infinity, duration: 2.5 }}
@@ -57,22 +54,22 @@ function Navbar() {
             <h2 className="text-xl font-black tracking-widest gold-text">AURIZ</h2>
             <p className="text-[10px] text-gray-400 tracking-wider">Premium Investment</p>
           </div>
-        </div>
+        </Link>
 
         {/* Desktop Menu */}
         <ul className="hidden lg:flex gap-8">
           {menu.map((item) => (
             <li key={item.label}>
-              <button
-                onClick={() => handleNav(item)}
+              <Link
+                to={item.to}
                 className={`text-sm font-semibold transition-all duration-200 pb-1 border-b-2 ${
-                  active === item.label
+                  isActive(item.to)
                     ? "text-yellow-400 border-yellow-400"
                     : "text-gray-300 border-transparent hover:text-yellow-400 hover:border-yellow-400/50"
                 }`}
               >
                 {item.label}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
@@ -81,7 +78,6 @@ function Navbar() {
         <div className="hidden lg:flex gap-3 items-center">
           {isAuthenticated ? (
             <>
-              {/* Dashboard Link */}
               <Link to="/dashboard">
                 <motion.div
                   whileHover={{ scale: 1.04 }}
@@ -124,7 +120,8 @@ function Navbar() {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden text-2xl text-white"
+          className="lg:hidden text-2xl text-white p-2"
+          aria-label="Toggle menu"
         >
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -139,24 +136,24 @@ function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden glass mx-4 mb-4 rounded-2xl overflow-hidden"
           >
-            <div className="p-6 space-y-1">
+            <div className="p-5 space-y-1">
               {menu.map((item) => (
-                <button
+                <Link
                   key={item.label}
-                  onClick={() => handleNav(item)}
-                  className={`w-full text-left py-3 px-4 rounded-xl text-sm font-semibold transition-all ${
-                    active === item.label
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className={`w-full block py-3 px-4 rounded-xl text-sm font-semibold transition-all ${
+                    isActive(item.to)
                       ? "text-yellow-400 bg-yellow-400/10"
                       : "text-gray-300 hover:text-yellow-400 hover:bg-white/5"
                   }`}
                 >
                   {item.label}
-                </button>
+                </Link>
               ))}
               <div className="pt-4 space-y-3">
                 {isAuthenticated ? (
                   <>
-                    {/* Dashboard Link Mobile */}
                     <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
                       <div
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold mb-1"
@@ -170,10 +167,7 @@ function Navbar() {
                       </div>
                     </Link>
                     <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        logout();
-                      }}
+                      onClick={() => { setMenuOpen(false); logout(); }}
                       className="w-full py-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
                     >
                       <FaSignOutAlt size={12} /> Logout
@@ -193,17 +187,11 @@ function Navbar() {
                         </button>
                       </Link>
                     </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setMenuOpen(false);
-                        const el = document.querySelector("#plans");
-                        if (el) el.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className="w-full glass border border-yellow-400/30 text-yellow-400 py-3 text-sm text-center font-bold rounded-xl"
-                    >
-                      Start Investing
-                    </motion.button>
+                    <Link to="/plans" onClick={() => setMenuOpen(false)}>
+                      <button className="w-full glass border border-yellow-400/30 text-yellow-400 py-3 text-sm text-center font-bold rounded-xl mt-2">
+                        Start Investing
+                      </button>
+                    </Link>
                   </>
                 )}
               </div>

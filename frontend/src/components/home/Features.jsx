@@ -57,7 +57,7 @@ const features = [
 
 function Features() {
   return (
-    <section className="section py-24">
+    <section className="section py-14 md:py-24 px-4 md:px-8">
       <div className="text-center mb-16">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -85,7 +85,7 @@ function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.08 }}
             whileHover={{ y: -10, scale: 1.03 }}
-            className="glass rounded-3xl p-7 group"
+            className="glass rounded-3xl p-5 md:p-7 group"
             style={{ border: "1px solid rgba(255,255,255,0.07)" }}
           >
             <div

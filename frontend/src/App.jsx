@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-// Layout & Landing components
-import Navbar from "./components/layout/Navbar";
-import Hero from "./components/home/Hero";
-import Stats from "./components/home/Stats";
-import Companies from "./components/home/Companies";
-import Features from "./components/home/Features";
-import Plans from "./components/home/Plans";
-import News from "./components/home/News";
-import Testimonials from "./components/home/Testimonials";
-import About from "./components/home/About";
-import Contact from "./components/home/Contact";
-import Footer from "./components/layout/Footer";
-import Loader from "./components/common/Loader";
+// Landing Pages
+import HomePage from "./pages/landing/HomePage";
+import CompaniesPage from "./pages/landing/CompaniesPage";
+import PlansPage from "./pages/landing/PlansPage";
+import NewsPage from "./pages/landing/NewsPage";
+import AboutPage from "./pages/landing/AboutPage";
+import ContactPage from "./pages/landing/ContactPage";
 
 // Authentication Pages
 import Login from "./pages/LoginPage";
@@ -36,39 +29,17 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import AdminRoute from "./components/common/AdminRoute";
 
-function LandingPage() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) return <Loader />;
-
-  return (
-    <>
-      <Navbar />
-      <Hero />
-      <Stats />
-      <Companies />
-      <Features />
-      <Plans />
-      <News />
-      <Testimonials />
-      <About />
-      <Contact />
-      <Footer />
-    </>
-  );
-}
-
 function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Render Landing Page (Website) at root "/" */}
-        <Route path="/" element={<LandingPage />} />
+        {/* Landing / Marketing Pages */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/companies" element={<CompaniesPage />} />
+        <Route path="/plans" element={<PlansPage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { FaCheckCircle, FaCrown, FaArrowRight } from "react-icons/fa";
 
 const plans = [
@@ -54,7 +55,7 @@ const plans = [
 
 function Plans() {
   return (
-    <section id="plans" className="section py-24">
+    <section id="plans" className="section py-14 md:py-24 px-4 md:px-8">
       {/* Header */}
       <div className="text-center mb-16">
         <motion.p
@@ -83,7 +84,7 @@ function Plans() {
         </motion.p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {plans.map((plan, index) => (
           <motion.div
             key={index}
@@ -91,7 +92,7 @@ function Plans() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.15, duration: 0.5 }}
             whileHover={{ y: -10, scale: 1.02 }}
-            className={`glass rounded-3xl p-8 relative flex flex-col ${
+            className={`glass rounded-3xl p-6 md:p-8 relative flex flex-col ${
               plan.popular
                 ? "border-2 border-yellow-400 shadow-[0_0_40px_rgba(212,175,55,0.2)]"
                 : "border border-white/8"

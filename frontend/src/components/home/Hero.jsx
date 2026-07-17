@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaArrowRight, FaPlay, FaStar, FaShieldAlt, FaBolt, FaCoins, FaChartPie } from "react-icons/fa";
 import NewsTicker from "./NewsTicker";
 
@@ -10,6 +10,7 @@ const floatingBadges = [
 ];
 
 function Hero() {
+  const navigate = useNavigate();
   return (
     <>
       <section id="home" className="relative min-h-screen overflow-hidden flex items-center pt-20 md:pt-28">
@@ -21,7 +22,7 @@ function Hero() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-400/8 blur-[180px] rounded-full pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-yellow-500/4 blur-[200px] rounded-full pointer-events-none" />
 
-        <div className="section relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center px-4 md:px-8 py-10 w-full">
+        <div className="section relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center px-4 md:px-8 py-6 md:py-10 w-full">
           {/* Left - Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -61,34 +62,30 @@ function Hero() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  const el = document.querySelector("#plans");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="goldButton px-8 md:px-10 py-3.5 md:py-4 flex items-center justify-center gap-3 text-sm md:text-base w-full sm:w-auto"
-              >
-                Start Investing <FaArrowRight />
-              </motion.button>
+            <div className="flex flex-col sm:flex-row gap-3 mt-6 md:mt-8 w-full sm:w-auto">
+              <Link to="/plans" className="w-full sm:w-auto">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="goldButton px-8 md:px-10 py-3.5 md:py-4 flex items-center justify-center gap-3 text-sm md:text-base w-full"
+                >
+                  Start Investing <FaArrowRight />
+                </motion.button>
+              </Link>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  const el = document.querySelector("#about");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="glass rounded-2xl px-8 md:px-10 py-3.5 md:py-4 flex items-center justify-center gap-3 text-sm md:text-base font-semibold hover:border-yellow-400/30 transition-all w-full sm:w-auto text-white"
-              >
-                <FaPlay size={12} className="text-yellow-400" /> Watch Demo
-              </motion.button>
+              <Link to="/about" className="w-full sm:w-auto">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="glass rounded-2xl px-8 md:px-10 py-3.5 md:py-4 flex items-center justify-center gap-3 text-sm md:text-base font-semibold hover:border-yellow-400/30 transition-all w-full text-white"
+                >
+                  <FaPlay size={12} className="text-yellow-400" /> Learn More
+                </motion.button>
+              </Link>
             </div>
 
             {/* Feature Pills */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-2.5 mt-8 w-full">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-2 mt-5 md:mt-8 w-full">
               {[
                 { icon: <FaShieldAlt size={12} />, text: "100% Secure" },
                 { icon: <FaCoins size={12} />, text: "Fast Withdrawal" },
@@ -179,7 +176,7 @@ function Hero() {
         </div>
       </section>
 
-      {/* Floating Dashboard Button (Tuned sizing and spacing for mobile viewports) */}
+      {/* Floating Dashboard Button */}
       <Link to="/dashboard">
         <motion.div
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -199,7 +196,7 @@ function Hero() {
         </motion.div>
       </Link>
 
-      <div className="section w-full px-4">
+      <div className="section w-full px-4 md:px-8">
         <NewsTicker />
       </div>
     </>
