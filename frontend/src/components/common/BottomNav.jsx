@@ -59,7 +59,7 @@ export default function BottomNav({ activePage }) {
 
   return (
     <nav className="bottom-nav">
-      <div className="flex justify-around items-center px-2">
+      <div className="flex justify-between items-center px-1">
         {tabs.map((tab) => {
           const isActive = activePage === tab.key;
           return (
@@ -67,7 +67,7 @@ export default function BottomNav({ activePage }) {
               key={tab.key}
               whileTap={{ scale: 0.9 }}
               onClick={() => navigate(tab.path)}
-              className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl transition-all duration-300"
+              className="flex-1 flex flex-col items-center gap-1 py-1.5 px-0.5 rounded-xl transition-all duration-300"
               style={{
                 background: isActive
                   ? "rgba(212, 175, 55, 0.08)"

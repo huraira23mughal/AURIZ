@@ -62,7 +62,7 @@ export default function AssetsPage() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="px-5 pt-12 pb-5 border-b border-white/5 bg-[#070a12]/80 backdrop-blur-md">
+      <div className="px-4 pt-12 pb-5 border-b border-white/5 bg-[#070a12]/80 backdrop-blur-md">
         <h1 className="text-2xl font-black text-white">
           Release <span style={{ color: "#ffd066" }}>Options</span>
         </h1>
@@ -72,7 +72,7 @@ export default function AssetsPage() {
       </div>
 
       {/* Segment switcher */}
-      <div className="flex m-4 bg-white/[0.02] border border-white/5 rounded-2xl p-1">
+      <div className="flex mx-4 my-4 bg-white/[0.02] border border-white/5 rounded-2xl p-1">
         <button
           onClick={() => setSegment("processing")}
           className={`flex-1 py-3 text-xs font-black rounded-xl transition ${segment === "processing" ? "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black shadow-md" : "bg-transparent text-gray-400"}`}
@@ -102,7 +102,7 @@ export default function AssetsPage() {
             <div className="text-center py-12 text-xs text-gray-500 font-bold">No active release options running.</div>
           ) : (
             processing.map((item) => (
-              <div key={item.id} className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex gap-4 items-center">
+              <div key={item.id} className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex gap-3.5 items-center">
                 <img src={item.image_url || defaultImg} alt={item.title} className="w-[54px] h-[54px] rounded-xl object-cover border border-white/5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-xs font-black text-white truncate">{item.title}</h4>
@@ -123,7 +123,7 @@ export default function AssetsPage() {
             <div className="text-center py-12 text-xs text-gray-500 font-bold">No completed logs found.</div>
           ) : (
             completed.map((item) => (
-              <div key={item.id} className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex gap-4 items-center">
+              <div key={item.id} className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex gap-3.5 items-center">
                 <img src={item.image_url || defaultImg} alt={item.title} className="w-[54px] h-[54px] rounded-xl object-cover border border-white/5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-xs font-black text-white truncate">{item.title}</h4>

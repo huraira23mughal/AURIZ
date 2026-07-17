@@ -160,7 +160,7 @@ export default function DashboardPage() {
   return (
     <MobileLayout>
       {/* ── Brand Header ── */}
-      <header className="flex justify-between items-center px-6 py-5 border-b border-white/5 bg-[#070a12]/80 backdrop-blur-md sticky top-0 z-10">
+      <header className="flex justify-between items-center px-4 py-4 border-b border-white/5 bg-[#070a12]/80 backdrop-blur-md sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-wider bg-gradient-to-r from-white to-[#ffd066] bg-clip-text text-transparent">
           AURIZ
         </h1>
@@ -186,7 +186,7 @@ export default function DashboardPage() {
           style={{ transform: `translateX(-${carouselIndex * 33.333}%)` }}
         >
           {carouselSlides.map((slide) => (
-            <div key={slide.id} className={`w-1/3 h-full relative bg-gradient-to-br ${slide.gradient} p-6 flex flex-col justify-end`}>
+            <div key={slide.id} className={`w-1/3 h-full relative bg-gradient-to-br ${slide.gradient} p-5 md:p-6 flex flex-col justify-end`}>
               <h3 className="text-xs font-black tracking-wider text-[#ffd066] uppercase mb-1">{slide.title}</h3>
               <p className="text-[10px] text-white/80 leading-relaxed max-w-[280px]">{slide.desc}</p>
             </div>
@@ -237,11 +237,11 @@ export default function DashboardPage() {
           <h3 className="text-sm font-black text-white">Hit record</h3>
           <span className="text-[11px] font-bold text-[#ffd066] cursor-pointer">More ›</span>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 md:gap-4">
           {albums.map((album) => (
             <div key={album.id} className="bg-[#151c2c]/40 border border-white/5 rounded-3xl overflow-hidden flex flex-col transition hover:border-[#ffd066]/20">
               <img src={album.img} alt={album.title} className="w-full h-[110px] object-cover" />
-              <div className="p-4 flex-1 flex flex-col justify-between">
+              <div className="p-3 flex-1 flex flex-col justify-between">
                 <div>
                   <h4 className="text-[13px] font-black text-white truncate">{album.title}</h4>
                   <p className="text-[9.5px] text-gray-400 mt-1">{album.artist}</p>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                   <span className="text-[13.5px] font-black text-[#ffd066]">${album.price.toFixed(2)}</span>
                   <button 
                     onClick={() => openDrawer(album)}
-                    className="px-3.5 py-2 rounded-full bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[10px] font-black cursor-pointer hover:opacity-90 transition"
+                    className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[10px] font-black cursor-pointer hover:opacity-90 transition"
                   >
                     Purchase
                   </button>

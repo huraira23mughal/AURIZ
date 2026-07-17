@@ -81,7 +81,7 @@ export default function ProfilePage() {
   return (
     <MobileLayout>
       {/* Header */}
-      <header className="flex justify-between items-center px-5 py-4 border-b border-white/5 bg-[#070a12]/80 backdrop-blur-md sticky top-0 z-10">
+      <header className="flex justify-between items-center px-4 py-4 border-b border-white/5 bg-[#070a12]/80 backdrop-blur-md sticky top-0 z-10">
         <button
           onClick={() => showToast("Settings coming soon")}
           className="text-xl text-gray-400 hover:text-white transition cursor-pointer"
@@ -97,10 +97,10 @@ export default function ProfilePage() {
         </button>
       </header>
 
-      <div className="px-5 py-5 space-y-4 pb-28">
+      <div className="px-4 py-4 space-y-4 pb-28">
 
         {/* Main user info card */}
-        <div className="bg-[#151c2c]/40 border border-[#ffd066]/10 rounded-[28px] p-5 backdrop-blur-md">
+        <div className="bg-[#151c2c]/40 border border-[#ffd066]/10 rounded-[28px] p-4 backdrop-blur-md">
           <div className="flex items-center gap-4 mb-5">
             {/* Avatar */}
             <div className="w-[54px] h-[54px] rounded-full bg-gradient-to-br from-[#ffd978] to-[#d4af37] p-[2px] flex-shrink-0">
@@ -124,30 +124,25 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
-
-            {/* AURIZ Logo */}
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#ffd978] to-[#d4af37] border-2 border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)] flex-shrink-0">
-              <span className="text-xl font-black text-black tracking-tighter">A</span>
-            </div>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-3">
-              <span className="text-[10px] text-gray-400 block mb-1">Total Earnings</span>
-              <span className="text-base font-black text-[#ffd066]">${totalEarnings.toFixed(2)}</span>
+          <div className="grid grid-cols-2 gap-2.5 mb-4">
+            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-2.5">
+              <span className="text-[10px] text-gray-400 block mb-1 tracking-tight">Total Earnings</span>
+              <span className="text-sm font-black text-[#ffd066]">${totalEarnings.toFixed(2)}</span>
             </div>
-            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-3">
-              <span className="text-[10px] text-gray-400 block mb-1">Total Assets</span>
-              <span className="text-base font-black text-[#ffd066]">${totalAssets.toFixed(2)}</span>
+            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-2.5">
+              <span className="text-[10px] text-gray-400 block mb-1 tracking-tight">Total Assets</span>
+              <span className="text-sm font-black text-[#ffd066]">${totalAssets.toFixed(2)}</span>
             </div>
-            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-3">
-              <span className="text-[10px] text-gray-400 block mb-1">Vouchers</span>
-              <span className="text-base font-black text-white">{vouchers}</span>
+            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-2.5">
+              <span className="text-[10px] text-gray-400 block mb-1 tracking-tight">Vouchers</span>
+              <span className="text-sm font-black text-white">{vouchers}</span>
             </div>
-            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-3">
-              <span className="text-[10px] text-gray-400 block mb-1">Members Referred</span>
-              <span className="text-base font-black text-white">{membersReferred}</span>
+            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-2.5">
+              <span className="text-[10px] text-gray-400 block mb-1 tracking-tight">Members Referred</span>
+              <span className="text-sm font-black text-white">{membersReferred}</span>
             </div>
           </div>
 

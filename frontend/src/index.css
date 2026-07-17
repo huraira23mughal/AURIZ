@@ -124,7 +124,7 @@ body {
   min-height: 100vh;
   max-width: 430px;
   margin: 0 auto;
-  padding-bottom: 100px;
+  padding-bottom: 80px;
   position: relative;
   overflow-x: hidden;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
@@ -143,7 +143,7 @@ body {
   -webkit-backdrop-filter: blur(24px);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 100;
-  padding: 10px 0 20px;
+  padding: 8px 8px env(safe-area-inset-bottom, 8px);
 }
 
 /* ── Glow Effects ── */
@@ -198,3 +198,12 @@ body {
 .animate-pulse-blue { animation: pulse-blue 2s ease-in-out infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
 .animate-marquee { animation: marquee 20s linear infinite; }
+
+/* ── Utility: Scrollbar None ── */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

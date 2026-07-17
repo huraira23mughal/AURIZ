@@ -109,7 +109,7 @@ function Register() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[460px] flex flex-col bg-gradient-to-b from-[#1e293b]/50 to-[#0f172a]/60 border border-white/[0.07] rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] p-8 sm:p-10 backdrop-blur-3xl relative z-10"
+        className="w-full max-w-[460px] flex flex-col bg-gradient-to-b from-[#1e293b]/50 to-[#0f172a]/60 border border-white/[0.07] rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] p-6 sm:p-10 backdrop-blur-3xl relative z-10"
       >
 
         {/* Header */}

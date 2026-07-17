@@ -112,7 +112,7 @@ export default function TasksPage() {
     <MobileLayout>
       {/* Header */}
       <div
-        className="px-5 pt-12 pb-5"
+        className="px-4 pt-12 pb-5"
         style={{
           background: "linear-gradient(180deg, rgba(212, 175, 55, 0.04) 0%, transparent 100%)",
           borderBottom: "1px solid rgba(212, 175, 55, 0.1)",
@@ -126,7 +126,7 @@ export default function TasksPage() {
         </p>
       </div>
 
-      <div className="px-5 py-5 space-y-5 pb-28">
+      <div className="px-4 py-4 space-y-4 pb-28">
 
         {/* Voucher summary card */}
         <div className="bg-gradient-to-br from-[#ffd978] to-[#b8860b] rounded-3xl p-5 shadow-lg text-black">
@@ -177,7 +177,7 @@ export default function TasksPage() {
                   key={ut.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-start gap-4 hover:border-white/10 transition"
+                  className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex justify-between items-center gap-3 hover:border-white/10 transition"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
@@ -220,14 +220,14 @@ export default function TasksPage() {
 
                   <div className="flex-shrink-0">
                     {isClaimed ? (
-                      <span className="px-4 py-2 text-[11px] font-black rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                      <span className="px-3.5 py-1.5 text-[10px] font-black rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                         Claimed
                       </span>
                     ) : isCompleted ? (
                       <button
                         onClick={() => handleClaim(task.id)}
                         disabled={isLoading}
-                        className="px-4 py-2 text-[11px] font-black rounded-xl bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black hover:opacity-90 transition cursor-pointer disabled:opacity-60"
+                        className="px-3.5 py-1.5 text-[10px] font-black rounded-lg bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black hover:opacity-90 transition cursor-pointer disabled:opacity-60"
                       >
                         {isLoading ? "..." : "Claim"}
                       </button>
@@ -235,7 +235,7 @@ export default function TasksPage() {
                       <button
                         onClick={() => handleStart(task.id)}
                         disabled={isLoading}
-                        className={`px-4 py-2 text-[11px] font-black rounded-xl transition cursor-pointer disabled:opacity-60 ${
+                        className={`px-3.5 py-1.5 text-[10px] font-black rounded-lg transition cursor-pointer disabled:opacity-60 ${
                           isInProgress
                             ? "bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20"
                             : "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black hover:opacity-90"
@@ -255,7 +255,7 @@ export default function TasksPage() {
         {!loading && (
           <div className="space-y-4">
             {/* Audio Task */}
-            <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-start gap-4">
+            <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex justify-between items-center gap-3">
               <div className="flex-1">
                 <span className="inline-block text-[9px] font-bold text-sky-400 bg-sky-400/10 border border-sky-400/20 px-2 py-0.5 rounded uppercase mb-1">
                   Activity
@@ -282,7 +282,7 @@ export default function TasksPage() {
               <button
                 onClick={() => audioSeconds >= 15 && showToast("🎵 Audio listening voucher applied!")}
                 disabled={audioSeconds < 15}
-                className={`px-4 py-2 text-[11px] font-black rounded-xl transition flex-shrink-0 ${
+                className={`px-3.5 py-1.5 text-[10px] font-black rounded-lg transition flex-shrink-0 ${
                   audioSeconds >= 15
                     ? "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black cursor-pointer"
                     : "bg-white/5 text-gray-500 cursor-not-allowed"
@@ -293,7 +293,7 @@ export default function TasksPage() {
             </div>
 
             {/* Invite Task */}
-            <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-center gap-4">
+            <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex justify-between items-center gap-3">
               <div className="flex-1">
                 <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded uppercase mb-1">
                   Ref
@@ -304,7 +304,7 @@ export default function TasksPage() {
               </div>
               <button
                 onClick={handleInvite}
-                className="px-4 py-2 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[11px] font-black rounded-xl cursor-pointer hover:opacity-90 transition flex-shrink-0"
+                className="px-3.5 py-1.5 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[10px] font-black rounded-lg cursor-pointer hover:opacity-90 transition flex-shrink-0"
               >
                 Invite
               </button>
