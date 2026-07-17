@@ -1,9 +1,31 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   FaShieldAlt, FaUsers, FaGlobe, FaTrophy,
   FaCheckCircle, FaArrowRight,
 } from "react-icons/fa";
+
+// Keeps the orbiting badges inside their circle at every screen size
+// instead of using one fixed radius that only fit desktop widths.
+function useOrbitRadius() {
+  const [radius, setRadius] = useState(80);
+
+  useEffect(() => {
+    const updateRadius = () => {
+      const w = window.innerWidth;
+      if (w < 400) setRadius(70);
+      else if (w < 640) setRadius(90);
+      else if (w < 1024) setRadius(130);
+      else setRadius(170);
+    };
+    updateRadius();
+    window.addEventListener("resize", updateRadius);
+    return () => window.removeEventListener("resize", updateRadius);
+  }, []);
+
+  return radius;
+}
 
 const milestones = [
   { icon: <FaUsers size={24} />, value: "25,000+", label: "Active Investors", color: "#D4AF37" },
@@ -22,8 +44,10 @@ const values = [
 ];
 
 function About() {
+  const orbitRadius = useOrbitRadius();
+
   return (
-    <section id="about" className="section landing-section px-4 md:px-8">
+    <section id="about" className="section page-section px-4 md:px-8">
       {/* Header */}
       <div className="text-center mb-16">
         <motion.p
@@ -99,24 +123,24 @@ function About() {
           className="relative"
         >
           {/* Center Orb */}
-          <div className="relative flex items-center justify-center h-[420px]">
+          <div className="relative flex items-center justify-center h-[260px] sm:h-[320px] lg:h-[420px]">
             {/* Glow Rings */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-              className="absolute w-72 h-72 rounded-full"
+              className="absolute w-44 h-44 sm:w-56 sm:h-56 lg:w-72 lg:h-72 rounded-full"
               style={{ border: "1px dashed rgba(212,175,55,0.3)" }}
             />
             <motion.div
               animate={{ rotate: -360 }}
               transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-              className="absolute w-96 h-96 rounded-full"
+              className="absolute w-60 h-60 sm:w-72 sm:h-72 lg:w-96 lg:h-96 rounded-full"
               style={{ border: "1px dashed rgba(212,175,55,0.15)" }}
             />
 
             {/* Center */}
             <div
-              className="w-36 h-36 rounded-full flex items-center justify-center text-black font-black text-5xl shadow-2xl"
+              className="w-20 h-20 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-full flex items-center justify-center text-black font-black text-2xl sm:text-3xl lg:text-5xl shadow-2xl"
               style={{
                 background: "linear-gradient(135deg, #FFD978, #D4AF37)",
                 boxShadow: "0 0 60px rgba(212,175,55,0.4)",
@@ -133,7 +157,7 @@ function About() {
               { label: "9.99/10 Trust", angle: 270 },
             ].map((item, i) => {
               const rad = (item.angle * Math.PI) / 180;
-              const r = 170;
+              const r = orbitRadius;
               const x = Math.cos(rad) * r;
               const y = Math.sin(rad) * r;
               return (
@@ -141,12 +165,11 @@ function About() {
                   key={i}
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ repeat: Infinity, duration: 2 + i * 0.5 }}
-                  className="absolute text-xs font-bold text-yellow-400 text-center"
+                  className="absolute text-[9px] sm:text-xs font-bold text-yellow-400 text-center px-1.5 py-1 sm:px-3 sm:py-1.5"
                   style={{
                     transform: `translate(${x}px, ${y}px)`,
                     background: "rgba(212,175,55,0.1)",
                     border: "1px solid rgba(212,175,55,0.3)",
-                    padding: "6px 12px",
                     borderRadius: "50px",
                     whiteSpace: "nowrap",
                   }}

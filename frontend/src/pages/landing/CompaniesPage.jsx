@@ -6,9 +6,7 @@ function CompaniesPage() {
   return (
     <>
       <Navbar />
-      <div className="pt-24 md:pt-28">
-        <Companies />
-      </div>
+      <Companies />
       <Footer />
     </>
   );

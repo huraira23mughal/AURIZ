@@ -140,6 +140,24 @@ body {
   }
 }
 
+/* ── Page Section Spacer ──
+   Used by single-section inner pages (Companies, Plans, About, Contact,
+   News) that sit directly under the fixed Navbar. Top padding clears the
+   navbar height on its own (matches Hero's pt-20/md:pt-28), so it must NOT
+   be combined with an extra pt-24/md:pt-28 wrapper in the page component —
+   stacking both caused the oversized gap under the navbar on these pages. */
+.page-section {
+  padding-top: 5rem;
+  padding-bottom: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  .page-section {
+    padding-top: 7rem;
+    padding-bottom: 6rem;
+  }
+}
+
 /* ── Section Divider ── */
 .section-divider {
   height: 1px;

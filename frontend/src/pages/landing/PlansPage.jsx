@@ -6,9 +6,7 @@ function PlansPage() {
   return (
     <>
       <Navbar />
-      <div className="pt-24 md:pt-28">
-        <Plans />
-      </div>
+      <Plans />
       <Footer />
     </>
   );

@@ -6,9 +6,7 @@ function ContactPage() {
   return (
     <>
       <Navbar />
-      <div className="pt-24 md:pt-28">
-        <Contact />
-      </div>
+      <Contact />
       <Footer />
     </>
   );
