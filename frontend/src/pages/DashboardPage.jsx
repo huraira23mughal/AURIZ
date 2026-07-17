@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import MobileLayout from "../components/common/MobileLayout";
 import BottomNav from "../components/common/BottomNav";
+import API from "../api/axios";
 
 const carouselSlides = [
   {
@@ -93,9 +94,10 @@ export default function DashboardPage() {
   const [qty, setQty] = useState(1);
   const [paymentMode, setPaymentMode] = useState("balance");
   const [toastMsg, setToastMsg] = useState("");
+  const [purchasing, setPurchasing] = useState(false);
 
-  const userBalance = profile?.available_balance || 124.83;
-  const userVouchers = profile?.vouchers || 245;
+  const userBalance = parseFloat(profile?.total_assets || 0);
+  const userVouchers = profile?.vouchers || 0;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -119,8 +121,8 @@ export default function DashboardPage() {
     setTimeout(() => setToastMsg(""), 2500);
   };
 
-  const confirmPurchase = () => {
-    if (!selectedAlbum) return;
+  const confirmPurchase = async () => {
+    if (!selectedAlbum || purchasing) return;
     const total = selectedAlbum.price * qty;
     
     if (paymentMode === "balance" && userBalance < total) {
@@ -133,8 +135,26 @@ export default function DashboardPage() {
       return;
     }
 
-    triggerToast("Ticket option successfully purchased!");
-    closeDrawer();
+    setPurchasing(true);
+    try {
+      await API.post("tickets/purchase/", {
+        album_id: selectedAlbum.id,
+        title: selectedAlbum.title,
+        artist: selectedAlbum.artist,
+        price: selectedAlbum.price,
+        profitRate: selectedAlbum.profitRate,
+        img: selectedAlbum.img,
+        paymentMode: paymentMode,
+        qty: qty
+      });
+      triggerToast("Ticket option successfully purchased!");
+      reloadProfile();
+      closeDrawer();
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to purchase ticket option.");
+    } finally {
+      setPurchasing(false);
+    }
   };
 
   return (
@@ -333,9 +353,10 @@ export default function DashboardPage() {
 
                 <button 
                   onClick={confirmPurchase}
-                  className="w-full py-4 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black font-black text-xs rounded-xl shadow-lg transition"
+                  disabled={purchasing}
+                  className="w-full py-4 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black font-black text-xs rounded-xl shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Confirm purchase
+                  {purchasing ? "Purchasing..." : "Confirm purchase"}
                 </button>
               </div>
             </motion.div>

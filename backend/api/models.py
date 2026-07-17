@@ -177,3 +177,58 @@ class BinancePayOrder(models.Model):
 
     def __str__(self):
         return f"{self.user.username} | {self.amount_usdt} USDT | {self.status}"
+
+
+class UserTicketOption(models.Model):
+    STATUS_CHOICES = [
+        ('processing', 'Processing'),
+        ('complete', 'Complete'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ticket_options')
+    album_id = models.IntegerField()
+    title = models.CharField(max_length=200)
+    artist = models.CharField(max_length=200)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    profit = models.DecimalField(max_digits=12, decimal_places=2)
+    image_url = models.URLField(blank=True, null=True)
+    duration_seconds = models.IntegerField(default=60)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='processing')
+    created_at = models.DateTimeField(auto_now_add=True)
+    settled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} | {self.title} | {self.status}"
+
+    def is_settled(self):
+        if self.status == 'complete':
+            return True
+        import datetime
+        from django.utils import timezone
+        elapsed = (timezone.now() - self.created_at).total_seconds()
+        if elapsed >= self.duration_seconds:
+            self.status = 'complete'
+            self.settled_at = self.created_at + datetime.timedelta(seconds=self.duration_seconds)
+            self.save()
+            
+            # Credit user balance & earnings
+            profile, _ = UserProfile.objects.get_or_create(user=self.user)
+            profile.total_assets += (self.price + self.profit)
+            profile.total_earnings += self.profit
+            profile.today_earnings += self.profit
+            profile.save()
+            
+            # Log Transaction
+            Transaction.objects.create(
+                user=self.user,
+                transaction_type='earning',
+                amount=self.profit,
+                status='approved',
+                note=f"Yield from ticket option: {self.title}",
+                processed_at=timezone.now()
+            )
+            return True
+        return False
+

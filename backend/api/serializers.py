@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile, Task, UserTask, Transaction, PortfolioEntry, ActivityFeed, BinancePayOrder
+from .models import UserProfile, Task, UserTask, Transaction, PortfolioEntry, ActivityFeed, BinancePayOrder, UserTicketOption
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -30,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Lightweight user serializer for /auth/me endpoint."""
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'is_staff', 'is_active']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -41,11 +42,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     level_label = serializers.ReadOnlyField()
     members_target = serializers.ReadOnlyField()
     recharge_target = serializers.ReadOnlyField()
+    is_staff = serializers.BooleanField(source='user.is_staff', read_only=True)
 
     class Meta:
         model = UserProfile
         fields = [
-            'username', 'email', 'first_name', 'last_name',
+            'username', 'email', 'first_name', 'last_name', 'is_staff',
             'level', 'level_label',
             'total_earnings', 'personal_gain', 'recharge_amount',
             'total_assets', 'today_earnings', 'yesterday_earnings',
@@ -63,6 +65,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'task_type',
             'reward_points', 'reward_amount', 'total_steps', 'is_active',
+            'created_at',
         ]
 
 
@@ -115,7 +118,7 @@ class ActivityFeedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ActivityFeed
-        fields = ['id', 'text', 'icon', 'color', 'time_ago']
+        fields = ['id', 'text', 'icon', 'color', 'time_ago', 'is_public', 'created_at']
 
     def get_time_ago(self, obj):
         from django.utils import timezone
@@ -151,3 +154,110 @@ class BinancePayOrderSerializer(serializers.ModelSerializer):
             'status', 'qr_code_url', 'checkout_url', 'binance_pay_url',
             'created_at', 'confirmed_at', 'expires_at',
         ]
+
+
+# =============================================
+# ADMIN SERIALIZERS
+# =============================================
+
+class AdminUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'level', 'total_earnings', 'personal_gain', 'recharge_amount',
+            'total_assets', 'today_earnings', 'yesterday_earnings',
+            'remaining_clicks', 'total_clicks', 'members_referred',
+            'vouchers', 'wallet_address', 'avatar_url',
+            'created_at', 'updated_at',
+        ]
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    profile = AdminUserProfileSerializer(read_only=True)
+    transaction_count = serializers.SerializerMethodField()
+    total_deposited = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'is_staff', 'is_active', 'date_joined', 'last_login',
+            'profile', 'transaction_count', 'total_deposited',
+        ]
+
+    def get_transaction_count(self, obj):
+        return obj.transactions.count()
+
+    def get_total_deposited(self, obj):
+        from django.db.models import Sum
+        result = obj.transactions.filter(
+            transaction_type='recharge', status='approved'
+        ).aggregate(total=Sum('amount'))['total']
+        return float(result or 0)
+
+
+class AdminTransactionSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.CharField(source='user.email', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+
+    class Meta:
+        model = Transaction
+        fields = [
+            'id', 'user_id', 'username', 'email',
+            'transaction_type', 'amount', 'status',
+            'note', 'created_at', 'processed_at',
+        ]
+
+
+class AdminActivityFeedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityFeed
+        fields = ['id', 'text', 'icon', 'color', 'is_public', 'created_at']
+
+
+class AdminTaskSerializer(serializers.ModelSerializer):
+    user_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Task
+        fields = [
+            'id', 'title', 'description', 'task_type',
+            'reward_points', 'reward_amount', 'total_steps',
+            'is_active', 'created_at', 'user_count',
+        ]
+
+    def get_user_count(self, obj):
+        return obj.user_tasks.count()
+
+
+class AdminBinanceOrderSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+
+    class Meta:
+        model = BinancePayOrder
+        fields = [
+            'id', 'username', 'prepay_id', 'merchant_trade_no',
+            'amount_usdt', 'status', 'created_at', 'confirmed_at', 'expires_at',
+        ]
+
+
+class UserTicketOptionSerializer(serializers.ModelSerializer):
+    time_left = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserTicketOption
+        fields = [
+            'id', 'album_id', 'title', 'artist', 'price', 'profit',
+            'image_url', 'duration_seconds', 'status', 'created_at',
+            'settled_at', 'time_left',
+        ]
+
+    def get_time_left(self, obj):
+        if obj.status == 'complete':
+            return 0
+        from django.utils import timezone
+        elapsed = (timezone.now() - obj.created_at).total_seconds()
+        remaining = int(obj.duration_seconds - elapsed)
+        return max(remaining, 0)
+

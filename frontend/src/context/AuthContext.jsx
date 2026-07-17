@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
           setProfile(res.data.profile);
         } catch (err) {
           console.error("Session initialization failed:", err);
-          logout();
+          _clearSession();
         }
       }
       setLoading(false);
@@ -27,13 +27,20 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
+  const _clearSession = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setUser(null);
+    setProfile(null);
+  };
+
   const login = async (username, password) => {
     setLoading(true);
     try {
       const res = await API.post("auth/login/", { username, password });
       localStorage.setItem("access_token", res.data.access);
       localStorage.setItem("refresh_token", res.data.refresh);
-      
+
       // Fetch user detail
       const meRes = await API.get("auth/me/");
       setUser(meRes.data.user);
@@ -82,21 +89,21 @@ export const AuthProvider = ({ children }) => {
         console.error("Logout request failed:", err);
       }
     }
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    setUser(null);
-    setProfile(null);
+    _clearSession();
     setLoading(false);
   };
 
   const reloadProfile = async () => {
     try {
       const res = await API.get("auth/me/");
+      setUser(res.data.user);
       setProfile(res.data.profile);
     } catch (err) {
       console.error("Failed to reload profile", err);
     }
   };
+
+  const isAdmin = user?.is_staff === true;
 
   return (
     <AuthContext.Provider
@@ -109,6 +116,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         reloadProfile,
         isAuthenticated: !!user,
+        isAdmin,
       }}
     >
       {children}

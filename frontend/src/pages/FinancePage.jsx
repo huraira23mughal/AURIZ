@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MobileLayout from "../components/common/MobileLayout";
 import BottomNav from "../components/common/BottomNav";
+import { useAuth } from "../context/AuthContext";
+import API from "../api/axios";
 
 const plans = [
   {
@@ -33,8 +36,50 @@ const plans = [
 ];
 
 export default function FinancePage() {
-  const handleSubscribe = (plan) => {
-    alert(`Subscribing to ${plan.name} requires a minimum available deposit of $${plan.minDeposit.toFixed(2)}. Make a recharge to proceed.`);
+  const { profile, reloadProfile } = useAuth();
+  const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const userBalance = parseFloat(profile?.total_assets || 0);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
+
+  const handleSubscribe = async (plan) => {
+    if (userBalance < plan.minDeposit) {
+      alert(`Insufficient balance. Subscribing to ${plan.name} requires a minimum available balance of $${plan.minDeposit.toFixed(2)}. Please recharge your account.`);
+      navigate("/recharge");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to subscribe to ${plan.name} with a lockup of $${plan.minDeposit.toFixed(2)}?`)) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Create a ticket-like purchase to represent the locked yield plan
+      await API.post("tickets/purchase/", {
+        album_id: plan.id + 100, // custom id offset for plans
+        title: plan.name,
+        artist: "Yield Lockup Package",
+        price: plan.minDeposit,
+        profitRate: parseFloat(plan.dailyRate) / 100,
+        img: "",
+        paymentMode: "balance",
+        qty: 1
+      });
+      
+      showToast(`🎉 Subscribed to ${plan.name} successfully! Check Income tab.`);
+      reloadProfile();
+    } catch (err) {
+      alert(err.response?.data?.error || "Subscription failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -49,7 +94,21 @@ export default function FinancePage() {
         </p>
       </div>
 
-      <div className="px-5 py-5 space-y-4 pb-24">
+      <div className="px-5 py-5 space-y-4 pb-28">
+        {/* Balance Card */}
+        <div className="bg-[#151c2c]/40 border border-white/5 rounded-3xl p-5 flex justify-between items-center">
+          <div>
+            <span className="text-[10px] text-gray-400 block uppercase tracking-wider font-bold">My Available Balance</span>
+            <h2 className="text-xl font-black text-[#ffd066] mt-1">${userBalance.toFixed(2)}</h2>
+          </div>
+          <button 
+            onClick={() => navigate("/recharge")}
+            className="px-4 py-2 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-xs font-black rounded-xl hover:brightness-105 transition"
+          >
+            Recharge
+          </button>
+        </div>
+
         {plans.map((plan) => (
           <div
             key={plan.id}
@@ -86,14 +145,21 @@ export default function FinancePage() {
 
             <button
               onClick={() => handleSubscribe(plan)}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black font-black text-xs hover:brightness-105 shadow-md transition cursor-pointer"
+              disabled={submitting}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black font-black text-xs hover:brightness-105 shadow-md transition cursor-pointer disabled:opacity-60"
             >
-              Subscribe Package
+              {submitting ? "Subscribing..." : "Subscribe Package"}
             </button>
 
           </div>
         ))}
       </div>
+
+      {toast && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-xs font-bold px-5 py-2.5 rounded-full shadow-lg z-50">
+          {toast}
+        </div>
+      )}
 
       <BottomNav activePage="finance" />
     </MobileLayout>

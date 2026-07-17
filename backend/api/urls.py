@@ -18,6 +18,21 @@ from .views import (
     BinancePayWebhookView,
     BinancePayStatusView,
     BinancePayDemoConfirmView,
+    # User tickets
+    TicketListView,
+    TicketPurchaseView,
+    # Admin
+    AdminStatsView,
+    AdminUserListView,
+    AdminUserDetailView,
+    AdminTransactionListView,
+    AdminTransactionApproveView,
+    AdminTransactionRejectView,
+    AdminTaskListView,
+    AdminTaskDetailView,
+    AdminActivityFeedListView,
+    AdminActivityFeedDetailView,
+    AdminBinanceOrderListView,
     health_check,
 )
 
@@ -57,4 +72,21 @@ urlpatterns = [
     path('payment/binance/webhook/', BinancePayWebhookView.as_view(), name='binance-pay-webhook'),
     path('payment/binance/status/<str:prepay_id>/', BinancePayStatusView.as_view(), name='binance-pay-status'),
     path('payment/binance/demo-confirm/<str:prepay_id>/', BinancePayDemoConfirmView.as_view(), name='binance-pay-demo-confirm'),
+
+    # ── User Tickets ──
+    path('tickets/', TicketListView.as_view(), name='ticket-list'),
+    path('tickets/purchase/', TicketPurchaseView.as_view(), name='ticket-purchase'),
+
+    # ── Admin ──
+    path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
+    path('admin/users/', AdminUserListView.as_view(), name='admin-user-list'),
+    path('admin/users/<int:pk>/', AdminUserDetailView.as_view(), name='admin-user-detail'),
+    path('admin/transactions/', AdminTransactionListView.as_view(), name='admin-transaction-list'),
+    path('admin/transactions/<int:pk>/approve/', AdminTransactionApproveView.as_view(), name='admin-transaction-approve'),
+    path('admin/transactions/<int:pk>/reject/', AdminTransactionRejectView.as_view(), name='admin-transaction-reject'),
+    path('admin/tasks/', AdminTaskListView.as_view(), name='admin-task-list'),
+    path('admin/tasks/<int:pk>/', AdminTaskDetailView.as_view(), name='admin-task-detail'),
+    path('admin/activity-feed/', AdminActivityFeedListView.as_view(), name='admin-activity-feed-list'),
+    path('admin/activity-feed/<int:pk>/', AdminActivityFeedDetailView.as_view(), name='admin-activity-feed-detail'),
+    path('admin/orders/', AdminBinanceOrderListView.as_view(), name='admin-orders'),
 ]

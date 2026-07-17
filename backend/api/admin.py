@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, Task, UserTask, Transaction, PortfolioEntry, ActivityFeed
+from .models import UserProfile, Task, UserTask, Transaction, PortfolioEntry, ActivityFeed, UserTicketOption
 
 
 @admin.register(UserProfile)
@@ -40,3 +40,11 @@ class PortfolioEntryAdmin(admin.ModelAdmin):
 class ActivityFeedAdmin(admin.ModelAdmin):
     list_display = ['text', 'icon', 'is_public', 'created_at']
     list_filter = ['is_public']
+
+
+@admin.register(UserTicketOption)
+class UserTicketOptionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'title', 'price', 'profit', 'status', 'created_at']
+    list_filter = ['status']
+    search_fields = ['user__username', 'title']
+

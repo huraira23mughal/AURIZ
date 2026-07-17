@@ -1,3 +1,42 @@
+/* Google Font */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* ==========================================================================
+   1. Theme Variables & Reset
+   ========================================================================== */
+:root {
+  --bg: #090d16;
+  --bg-darker: #03050a;
+  --card-bg: rgba(30, 41, 59, 0.5);
+  --text: #9ca3af;
+  --text-h: #ffffff;
+  --border: rgba(255, 255, 255, 0.07);
+
+  /* Gold/Amber Accents (The Old Theme colors mapped) */
+  --accent: #ffd066;
+  --accent-hover: #d4af37;
+  --accent-bg: rgba(212, 175, 55, 0.1);
+  --accent-border: rgba(212, 175, 55, 0.4);
+
+  --social-bg: rgba(255, 255, 255, 0.03);
+  --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ==========================================================================
+   2. Landing Page & Utility Layout Styles (Block 1)
+   ========================================================================== */
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -11,6 +50,7 @@
   &:hover {
     border-color: var(--accent-border);
   }
+
   &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -42,8 +82,7 @@
     z-index: 1;
     top: 34px;
     height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg) scale(1.4);
   }
 
   .vite {
@@ -51,8 +90,7 @@
     top: 107px;
     height: 26px;
     width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg) scale(0.8);
   }
 }
 
@@ -75,9 +113,10 @@
   border-top: 1px solid var(--border);
   text-align: left;
 
-  & > div {
+  &>div {
     flex: 1 1 0;
     padding: 32px;
+
     @media (max-width: 1024px) {
       padding: 24px 20px;
     }
@@ -130,6 +169,7 @@
     &:hover {
       box-shadow: var(--shadow);
     }
+
     .button-icon {
       height: 18px;
       width: 18px;
@@ -156,6 +196,7 @@
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
+
   @media (max-width: 1024px) {
     height: 48px;
   }
@@ -177,8 +218,249 @@
     left: 0;
     border-left-color: var(--border);
   }
+
   &::after {
     right: 0;
     border-right-color: var(--border);
+  }
+}
+
+/* ==========================================================================
+   3. Authorization Layout & Glassmorphism Theme (Block 2 / Merged Palette)
+   ========================================================================== */
+
+/* Dark Gradient Background container */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: radial-gradient(at 50% 20%, #111827, var(--bg), var(--bg-darker));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Premium Dark Glassmorphic Card */
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  padding: 40px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  position: relative;
+  z-index: 10;
+}
+
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 5px;
+  color: var(--text-h);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 30px;
+}
+
+/* Forms & Inputs */
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-left: 4px;
+}
+
+.input-group input {
+  width: 100%;
+  height: 52px;
+  background: rgba(9, 13, 22, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: var(--text-h);
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.input-group input::placeholder {
+  color: #6b7280;
+}
+
+.input-group input:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
+}
+
+/* Icon Inputs (with gold glow integrations) */
+.icon-input {
+  display: flex;
+  align-items: center;
+  background: rgba(9, 13, 22, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.icon-input:focus-within {
+  border-color: var(--accent-border);
+}
+
+.icon-input span {
+  width: 50px;
+  text-align: center;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.icon-input input {
+  border: none;
+  background: transparent;
+}
+
+.icon-input input:focus {
+  box-shadow: none;
+}
+
+/* Password Inputs & Eye toggles */
+.password-box {
+  display: flex;
+}
+
+.password-box input {
+  border-radius: 16px 0 0 16px;
+}
+
+.show-btn {
+  width: 80px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 0 16px 16px 0;
+  transition: background-color 0.2s;
+}
+
+.show-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* Remember me & checkbox layout */
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Buttons (Gilded Theme styling applied) */
+.primary-btn {
+  width: 100%;
+  height: 52px;
+  border: none;
+  background: linear-gradient(to right, #ffd978, var(--accent-hover));
+  color: #000;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 16px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease-in-out;
+  margin-top: 20px;
+}
+
+.primary-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 10px 15px -3px rgba(212, 175, 55, 0.2);
+}
+
+.secondary-btn {
+  width: 100%;
+  height: 52px;
+  margin-top: 15px;
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease-in-out;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+/* Links */
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* Bottom Text helper class */
+.bottom-text {
+  margin-top: 25px;
+  text-align: center;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* Responsive Overrides */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 25px;
+    border-radius: 24px;
+  }
+
+  .row-between {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .show-btn {
+    width: 70px;
   }
 }

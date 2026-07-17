@@ -8,6 +8,7 @@ from decimal import Decimal
 import requests as http_requests
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Sum, Count, Q
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
 from django.contrib.auth.models import User
-from .models import UserProfile, Task, UserTask, Transaction, PortfolioEntry, ActivityFeed, BinancePayOrder
+from .models import UserProfile, Task, UserTask, Transaction, PortfolioEntry, ActivityFeed, BinancePayOrder, UserTicketOption
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
@@ -29,6 +30,12 @@ from .serializers import (
     ActivityFeedSerializer,
     BinancePayCreateSerializer,
     BinancePayOrderSerializer,
+    AdminUserSerializer,
+    AdminTransactionSerializer,
+    AdminActivityFeedSerializer,
+    AdminTaskSerializer,
+    AdminBinanceOrderSerializer,
+    UserTicketOptionSerializer,
 )
 
 
@@ -457,7 +464,6 @@ class BinancePayWebhookView(APIView):
     def post(self, request):
         data = request.data
 
-        # Verify webhook signature if in production
         biz_type = data.get("bizType", "")
         biz_data = data.get("data", {})
 
@@ -480,13 +486,11 @@ class BinancePayWebhookView(APIView):
             order.confirmed_at = timezone.now()
             order.save()
 
-            # Credit the user's account
             profile, _ = UserProfile.objects.get_or_create(user=order.user)
             profile.recharge_amount += order.amount_usdt
             profile.total_assets += order.amount_usdt
             profile.save()
 
-            # Log transaction
             Transaction.objects.create(
                 user=order.user,
                 transaction_type='recharge',
@@ -531,12 +535,10 @@ class BinancePayDemoConfirmView(APIView):
         if order.status != 'pending':
             return Response({"error": "Order already processed."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Mark as paid
         order.status = 'paid'
         order.confirmed_at = timezone.now()
         order.save()
 
-        # Credit account
         profile, _ = UserProfile.objects.get_or_create(user=order.user)
         profile.recharge_amount += order.amount_usdt
         profile.total_assets += order.amount_usdt
@@ -555,6 +557,394 @@ class BinancePayDemoConfirmView(APIView):
             "message": "Payment confirmed successfully!",
             "order": BinancePayOrderSerializer(order).data,
         })
+
+
+# =============================================
+# ADMIN VIEWS
+# =============================================
+
+class AdminStatsView(APIView):
+    """Admin dashboard KPI statistics."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        total_users = User.objects.filter(is_staff=False).count()
+        active_users = User.objects.filter(is_staff=False, is_active=True).count()
+        
+        pending_recharges = Transaction.objects.filter(
+            transaction_type='recharge', status='pending'
+        ).count()
+        pending_withdrawals = Transaction.objects.filter(
+            transaction_type='withdrawal', status='pending'
+        ).count()
+        
+        total_deposited = Transaction.objects.filter(
+            transaction_type='recharge', status='approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        total_withdrawn = Transaction.objects.filter(
+            transaction_type='withdrawal', status='approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        total_tasks = Task.objects.count()
+        active_tasks = Task.objects.filter(is_active=True).count()
+        
+        recent_transactions = Transaction.objects.order_by('-created_at')[:10]
+        
+        return Response({
+            "users": {
+                "total": total_users,
+                "active": active_users,
+            },
+            "transactions": {
+                "pending_recharges": pending_recharges,
+                "pending_withdrawals": pending_withdrawals,
+                "total_deposited": float(total_deposited),
+                "total_withdrawn": float(total_withdrawn),
+            },
+            "tasks": {
+                "total": total_tasks,
+                "active": active_tasks,
+            },
+            "recent_transactions": AdminTransactionSerializer(recent_transactions, many=True).data,
+        })
+
+
+class AdminUserListView(APIView):
+    """Admin: list all users or create a new user."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        search = request.query_params.get('search', '')
+        users = User.objects.all().prefetch_related('profile', 'transactions')
+        if search:
+            users = users.filter(
+                Q(username__icontains=search) | Q(email__icontains=search)
+            )
+        users = users.order_by('-date_joined')
+        serializer = AdminUserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class AdminUserDetailView(APIView):
+    """Admin: get, update or toggle a specific user."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, pk):
+        try:
+            user = User.objects.prefetch_related('profile').get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(AdminUserSerializer(user).data)
+
+    def patch(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Update user fields
+        if 'is_active' in request.data:
+            user.is_active = request.data['is_active']
+        if 'is_staff' in request.data:
+            user.is_staff = request.data['is_staff']
+        if 'email' in request.data:
+            user.email = request.data['email']
+        if 'first_name' in request.data:
+            user.first_name = request.data['first_name']
+        if 'last_name' in request.data:
+            user.last_name = request.data['last_name']
+        user.save()
+
+        # Update profile fields
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile_fields = ['level', 'total_earnings', 'total_assets', 'vouchers', 
+                         'recharge_amount', 'wallet_address', 'members_referred']
+        for field in profile_fields:
+            if field in request.data:
+                setattr(profile, field, request.data[field])
+        profile.save()
+
+        return Response(AdminUserSerializer(user).data)
+
+    def delete(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        if user.is_staff:
+            return Response({"error": "Cannot delete admin users."}, status=status.HTTP_403_FORBIDDEN)
+        user.delete()
+        return Response({"message": "User deleted."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class AdminTransactionListView(APIView):
+    """Admin: list all transactions with optional filters."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        txn_type = request.query_params.get('type', '')
+        txn_status = request.query_params.get('status', '')
+        search = request.query_params.get('search', '')
+
+        txns = Transaction.objects.select_related('user').order_by('-created_at')
+        if txn_type:
+            txns = txns.filter(transaction_type=txn_type)
+        if txn_status:
+            txns = txns.filter(status=txn_status)
+        if search:
+            txns = txns.filter(
+                Q(user__username__icontains=search) | Q(user__email__icontains=search)
+            )
+
+        serializer = AdminTransactionSerializer(txns, many=True)
+        return Response(serializer.data)
+
+
+class AdminTransactionApproveView(APIView):
+    """Admin: approve a pending transaction."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, pk):
+        try:
+            txn = Transaction.objects.select_related('user').get(pk=pk)
+        except Transaction.DoesNotExist:
+            return Response({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if txn.status != 'pending':
+            return Response({"error": "Transaction is not pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        txn.status = 'approved'
+        txn.processed_at = timezone.now()
+        txn.save()
+
+        # Credit or debit account
+        profile, _ = UserProfile.objects.get_or_create(user=txn.user)
+        if txn.transaction_type == 'recharge':
+            profile.recharge_amount += txn.amount
+            profile.total_assets += txn.amount
+            profile.save()
+        elif txn.transaction_type == 'withdrawal':
+            profile.total_earnings -= txn.amount
+            profile.total_assets -= txn.amount
+            profile.save()
+
+        return Response({
+            "message": "Transaction approved.",
+            "transaction": AdminTransactionSerializer(txn).data,
+        })
+
+
+class AdminTransactionRejectView(APIView):
+    """Admin: reject a pending transaction."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, pk):
+        try:
+            txn = Transaction.objects.get(pk=pk)
+        except Transaction.DoesNotExist:
+            return Response({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if txn.status != 'pending':
+            return Response({"error": "Transaction is not pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        txn.status = 'rejected'
+        txn.processed_at = timezone.now()
+        txn.note = request.data.get('reason', txn.note)
+        txn.save()
+
+        return Response({
+            "message": "Transaction rejected.",
+            "transaction": AdminTransactionSerializer(txn).data,
+        })
+
+
+class AdminTaskListView(APIView):
+    """Admin: list all tasks or create a new one."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        tasks = Task.objects.annotate(
+            user_count_ann=Count('user_tasks')
+        ).order_by('-created_at')
+        serializer = AdminTaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = AdminTaskSerializer(data=request.data)
+        if serializer.is_valid():
+            task = serializer.save()
+            return Response(AdminTaskSerializer(task).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminTaskDetailView(APIView):
+    """Admin: update or delete a specific task."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(AdminTaskSerializer(task).data)
+
+    def patch(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AdminTaskSerializer(task, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+        task.delete()
+        return Response({"message": "Task deleted."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class AdminActivityFeedListView(APIView):
+    """Admin: list all activity feed items or create new ones."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        feed = ActivityFeed.objects.all().order_by('-created_at')
+        serializer = AdminActivityFeedSerializer(feed, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = AdminActivityFeedSerializer(data=request.data)
+        if serializer.is_valid():
+            item = serializer.save()
+            return Response(AdminActivityFeedSerializer(item).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminActivityFeedDetailView(APIView):
+    """Admin: update or delete an activity feed item."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def patch(self, request, pk):
+        try:
+            item = ActivityFeed.objects.get(pk=pk)
+        except ActivityFeed.DoesNotExist:
+            return Response({"error": "Feed item not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AdminActivityFeedSerializer(item, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            item = ActivityFeed.objects.get(pk=pk)
+        except ActivityFeed.DoesNotExist:
+            return Response({"error": "Feed item not found."}, status=status.HTTP_404_NOT_FOUND)
+        item.delete()
+        return Response({"message": "Feed item deleted."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class AdminBinanceOrderListView(APIView):
+    """Admin: list all Binance Pay orders."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        orders = BinancePayOrder.objects.select_related('user').order_by('-created_at')
+        status_filter = request.query_params.get('status', '')
+        if status_filter:
+            orders = orders.filter(status=status_filter)
+        serializer = AdminBinanceOrderSerializer(orders, many=True)
+        return Response(serializer.data)
+
+
+# =============================================
+# USER TICKETS
+# =============================================
+
+class TicketListView(APIView):
+    """List active and completed ticket options for user, checking for settlement."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        tickets = UserTicketOption.objects.filter(user=request.user)
+        # Check and settle active tickets on read
+        for ticket in tickets.filter(status='processing'):
+            ticket.is_settled()
+        
+        serializer = UserTicketOptionSerializer(tickets, many=True)
+        return Response(serializer.data)
+
+
+class TicketPurchaseView(APIView):
+    """Purchase a music ticket option using balance or vouchers."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        album_id = request.data.get("album_id")
+        title = request.data.get("title")
+        artist = request.data.get("artist")
+        price = Decimal(str(request.data.get("price", 0)))
+        profit_rate = Decimal(str(request.data.get("profitRate", 0.03)))
+        image_url = request.data.get("img", "")
+        payment_mode = request.data.get("paymentMode", "balance") # balance or voucher
+        qty = int(request.data.get("qty", 1))
+
+        if qty <= 0:
+            return Response({"error": "Invalid quantity."}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_price = price * qty
+        profit = total_price * profit_rate
+
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+        if payment_mode == "balance":
+            if profile.total_assets < total_price:
+                return Response({"error": "Insufficient balance."}, status=status.HTTP_400_BAD_REQUEST)
+            # Deduct from assets for lockup
+            profile.total_assets -= total_price
+            profile.save()
+        elif payment_mode == "voucher":
+            vouchers_needed = qty * 10
+            if profile.vouchers < vouchers_needed:
+                return Response({"error": "Insufficient vouchers."}, status=status.HTTP_400_BAD_REQUEST)
+            profile.vouchers -= vouchers_needed
+            profile.save()
+        else:
+            return Response({"error": "Invalid payment mode."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create active ticket option(s)
+        ticket = UserTicketOption.objects.create(
+            user=request.user,
+            album_id=album_id,
+            title=title,
+            artist=artist,
+            price=total_price,
+            profit=profit,
+            image_url=image_url,
+            duration_seconds=30, # short duration for demo purposes
+            status='processing',
+        )
+
+        # Log purchase transaction
+        Transaction.objects.create(
+            user=request.user,
+            transaction_type='recharge' if payment_mode == "balance" else 'reward', # lockup classification
+            amount=total_price,
+            status='approved',
+            note=f"Locked for option: {title} (Qty: {qty})",
+            processed_at=timezone.now()
+        )
+
+        return Response({
+            "message": "Ticket option purchased successfully!",
+            "ticket": UserTicketOptionSerializer(ticket).data
+        }, status=status.HTTP_201_CREATED)
 
 
 # =============================================
