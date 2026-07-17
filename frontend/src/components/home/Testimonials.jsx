@@ -24,7 +24,7 @@ const testimonials = [
 
 function Testimonials() {
     return (
-        <section className="section py-12 md:py-24 px-4 md:px-8">
+        <section className="section landing-section px-4 md:px-8">
 
             <div className="text-center mb-10 md:mb-16">
 

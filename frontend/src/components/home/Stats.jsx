@@ -35,7 +35,7 @@ const stats = [
 
 function Stats() {
     return (
-        <section className="section py-12 md:py-24 px-4">
+        <section className="section landing-section px-4 md:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full">
                 {stats.map((item, index) => (
                     <motion.div

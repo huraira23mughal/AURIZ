@@ -55,7 +55,7 @@ const plans = [
 
 function Plans() {
   return (
-    <section id="plans" className="section py-14 md:py-24 px-4 md:px-8">
+    <section id="plans" className="section landing-section px-4 md:px-8">
       {/* Header */}
       <div className="text-center mb-16">
         <motion.p

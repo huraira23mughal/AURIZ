@@ -127,6 +127,28 @@ body {
   }
 }
 
+/* ── Landing Section Spacer ── */
+.landing-section {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  .landing-section {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* ── Section Divider ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.15), transparent);
+  margin: 0 auto;
+  width: 80%;
+  max-width: 1000px;
+}
+
 /* ── Mobile Page Container ── */
 .mobile-page {
   background: #080c16;

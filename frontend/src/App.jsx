@@ -1,4 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaChartPie } from "react-icons/fa";
 
 // Landing Pages
 import HomePage from "./pages/landing/HomePage";
@@ -25,13 +27,21 @@ import FinancePage from "./pages/FinancePage";
 import AdminPage from "./pages/AdminPage";
 
 // Security & Context
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import AdminRoute from "./components/common/AdminRoute";
 
-function App() {
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  // Marketing paths where the floating button should show
+  const isMarketingPage = ["/", "/companies", "/plans", "/news", "/about", "/contact"].includes(
+    location.pathname
+  );
+
   return (
-    <AuthProvider>
+    <>
       <Routes>
         {/* Landing / Marketing Pages */}
         <Route path="/" element={<HomePage />} />
@@ -106,6 +116,35 @@ function App() {
           }
         />
       </Routes>
+
+      {/* Global Floating Dashboard Button with very high z-index */}
+      {isAuthenticated && isMarketingPage && (
+        <Link to="/dashboard">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            whileHover={{ scale: 1.06, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className="fixed bottom-6 right-4 md:bottom-8 md:right-6 z-[9999] flex items-center gap-2 font-bold text-xs md:text-sm px-4 py-3 md:px-5 md:py-3.5 rounded-2xl cursor-pointer"
+            style={{
+              background: "linear-gradient(135deg, #FFD978, #D4AF37)",
+              color: "#000",
+              boxShadow: "0 0 25px rgba(212,175,55,0.4), 0 8px 32px rgba(0,0,0,0.5)",
+            }}
+          >
+            <FaChartPie size={14} />
+            Open Dashboard
+          </motion.div>
+        </Link>
+      )}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

@@ -23,7 +23,7 @@ const values = [
 
 function About() {
   return (
-    <section id="about" className="section py-14 md:py-24 px-4 md:px-8">
+    <section id="about" className="section landing-section px-4 md:px-8">
       {/* Header */}
       <div className="text-center mb-16">
         <motion.p

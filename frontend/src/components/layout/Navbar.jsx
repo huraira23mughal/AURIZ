@@ -117,14 +117,31 @@ function Navbar() {
           )}
         </div>
 
-        {/* Mobile Hamburger */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden text-2xl text-white p-2"
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
+        {/* Mobile Controls */}
+        <div className="flex lg:hidden items-center gap-2">
+          {isAuthenticated && (
+            <Link to="/dashboard">
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center justify-center w-10 h-10 rounded-xl cursor-pointer"
+                style={{
+                  background: "rgba(212,175,55,0.1)",
+                  border: "1px solid rgba(212,175,55,0.35)",
+                  color: "#FFD978",
+                }}
+              >
+                <FaChartPie size={15} />
+              </motion.div>
+            </Link>
+          )}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-2xl text-white p-2"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}

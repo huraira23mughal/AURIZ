@@ -75,7 +75,7 @@ const tickerItems = [
 
 function News() {
   return (
-    <section id="news" className="section py-24">
+    <section id="news" className="section landing-section px-4 md:px-8">
       {/* Live Ticker */}
       <div
         className="rounded-2xl overflow-hidden mb-16"

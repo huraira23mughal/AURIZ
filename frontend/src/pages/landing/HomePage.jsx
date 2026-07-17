@@ -10,8 +10,11 @@ function HomePage() {
     <>
       <Navbar />
       <Hero />
+      <div className="section-divider" />
       <Stats />
+      <div className="section-divider" />
       <Features />
+      <div className="section-divider" />
       <Testimonials />
       <Footer />
     </>

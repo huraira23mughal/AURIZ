@@ -57,7 +57,7 @@ const features = [
 
 function Features() {
   return (
-    <section className="section py-14 md:py-24 px-4 md:px-8">
+    <section className="section landing-section px-4 md:px-8">
       <div className="text-center mb-16">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
