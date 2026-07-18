@@ -1,300 +1,195 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { User, Mail, Lock, Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AurizBackground from "../components/AurizBackground";
 
-function Register() {
-  const navigate = useNavigate();
+const InputWithIcon = ({ icon: Icon, type, placeholder, value, onChange, showToggle, onToggle, error }) => (
+  <div className={`relative flex items-center rounded-xl overflow-hidden transition bg-[#0a0a0a]
+    ${error
+      ? "border border-red-500 shadow-[0_0_12px_rgba(239,68,68,.3)]"
+      : "border border-white/10 focus-within:border-yellow-400/50 focus-within:shadow-[0_0_15px_rgba(255,215,0,.2)]"
+    }`}
+  >
+    <div className="flex items-center justify-center w-12 h-12 border-r border-white/10 shrink-0">
+      <Icon className="w-5 h-5 text-yellow-400" />
+    </div>
+    <input
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      autoComplete="off"
+      className="flex-1 bg-transparent px-4 py-3.5 text-white placeholder-gray-500 outline-none text-sm"
+    />
+    {showToggle !== undefined && (
+      <button type="button" onClick={onToggle} className="pr-4 text-yellow-400 shrink-0">
+        {showToggle ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      </button>
+    )}
+  </div>
+);
+
+export default function Register() {
   const { register } = useAuth();
+  const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [globalError, setGlobalError] = useState("");
+  const [apiError, setApiError] = useState("");
 
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    invitationCode: "TDx3m",
-    agree: false,
+    username: "", email: "", password: "", confirmPassword: "", invitationCode: "TDx3m", agree: false,
+  });
+  const [errors, setErrors] = useState({
+    username: "", email: "", password: "", confirmPassword: "", invitationCode: "", agree: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
-    if (errors[name]) setErrors({ ...errors, [name]: "" });
-    if (globalError) setGlobalError("");
+  const update = (field, val) => {
+    setFormData(prev => ({ ...prev, [field]: val }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
+    setApiError("");
+  };
+
+  const validate = () => {
+    const e = {};
+    if (!formData.username.trim()) e.username = "Username is required.";
+    else if (formData.username.length < 3) e.username = "Minimum 3 characters.";
+    if (!formData.email.trim()) e.email = "Email is required.";
+    else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) e.email = "Enter a valid email.";
+    if (!formData.password) e.password = "Password is required.";
+    else if (formData.password.length < 6) e.password = "Minimum 6 characters.";
+    if (!formData.confirmPassword) e.confirmPassword = "Please confirm your password.";
+    else if (formData.password !== formData.confirmPassword) e.confirmPassword = "Passwords do not match.";
+    if (!formData.invitationCode.trim()) e.invitationCode = "Invitation code is required.";
+    if (!formData.agree) e.agree = "You must accept the User Agreement.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
-
-    if (!formData.agree) {
-      newErrors.agree = "Please agree to the User Agreement.";
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
-    }
-    if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
-    }
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+    if (!validate() || loading) return;
     setLoading(true);
-    setErrors({});
-    setGlobalError("");
-
-    const result = await register(
-      formData.username,
-      formData.email,
-      formData.password,
-      formData.confirmPassword
-    );
-
+    const result = await register(formData.username, formData.email, formData.password, formData.confirmPassword);
     setLoading(false);
-
     if (result.success) {
       navigate("/dashboard", { replace: true });
     } else {
-      // Handle field-level errors from backend
-      const errData = result.error;
-      if (typeof errData === "object" && !errData.detail) {
-        const mapped = {};
-        Object.entries(errData).forEach(([key, val]) => {
-          mapped[key] = Array.isArray(val) ? val[0] : val;
+      // Handle field-level API errors
+      const err = result.error;
+      if (typeof err === "object") {
+        const fieldMap = { username: "username", email: "email", password: "password", password2: "confirmPassword" };
+        const newErrors = { ...errors };
+        let hasFieldError = false;
+        Object.entries(fieldMap).forEach(([apiKey, fieldKey]) => {
+          if (err[apiKey]) { newErrors[fieldKey] = Array.isArray(err[apiKey]) ? err[apiKey][0] : err[apiKey]; hasFieldError = true; }
         });
-        setErrors(mapped);
+        if (hasFieldError) setErrors(newErrors);
+        else setApiError(err.detail || "Registration failed. Please try again.");
       } else {
-        setGlobalError(errData?.detail || "Registration failed. Please try again.");
+        setApiError(err || "Registration failed. Please try again.");
       }
     }
   };
 
-  const inputClass = (field) =>
-    `w-full py-3.5 pl-12 pr-4 bg-[#090d16]/90 border rounded-2xl text-xs text-white placeholder-gray-500 font-medium focus:outline-none focus:ring-1 transition-all duration-200 ${
-      errors[field]
-        ? "border-red-500/50 focus:border-red-500/60 focus:ring-red-500/20"
-        : "border-white/[0.06] focus:border-[#d4af37]/60 focus:ring-[#d4af37]/20"
-    }`;
-
   return (
-    <div className="min-h-screen bg-radial-[at_50%_20%] from-[#111827] via-[#090d16] to-[#03050a] flex flex-col justify-center items-center px-4 py-16 relative overflow-hidden font-sans">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-y-auto overflow-x-hidden py-8">
+      <AurizBackground />
 
-      {/* Dynamic Gold Backglow */}
-      <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[380px] h-[380px] bg-gradient-to-tr from-[#d4af37]/10 to-transparent blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[5%] right-[-10%] w-[300px] h-[300px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
-
-      {/* Logo */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 text-center"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7 }}
+        className="relative z-10 w-full max-w-md backdrop-blur-2xl bg-black/50 border border-white/10 rounded-3xl p-8 shadow-[0_0_50px_rgba(255,215,0,0.2)] my-4"
       >
-        <h1 className="text-4xl font-black tracking-[0.2em] bg-gradient-to-r from-white via-[#ffd066] to-[#d4af37] bg-clip-text text-transparent">
-          AURIZ
-        </h1>
-        <p className="text-[10px] text-gray-500 tracking-widest uppercase mt-1">Music Investment Platform</p>
-      </motion.div>
+        <div className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
 
-      {/* auth-card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[460px] flex flex-col bg-gradient-to-b from-[#1e293b]/50 to-[#0f172a]/60 border border-white/[0.07] rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] p-6 sm:p-10 backdrop-blur-3xl relative z-10"
-      >
-
-        {/* Header */}
-        <div className="space-y-2 mb-8">
-          <h2 className="text-3xl font-extrabold tracking-tight text-white uppercase">
-            Create <span className="bg-gradient-to-r from-[#ffd066] to-[#d4af37] bg-clip-text text-transparent">Account</span>
-          </h2>
-          <p className="text-xs text-gray-400 font-medium">Register a new account to start investing.</p>
+        <div className="text-center mb-7">
+          <h1 className="text-5xl font-extrabold tracking-[0.4em] bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
+            AURIZ
+          </h1>
+          <p className="mt-2 text-gray-400 text-sm">Create your premium account</p>
         </div>
 
-        {/* Global Error */}
-        {globalError && (
+        {apiError && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-5 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-400 font-semibold"
+            className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center"
           >
-            ⚠️ {globalError}
+            {apiError}
           </motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-
           {/* Username */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-[10px] font-bold text-[#ffd066]/80 uppercase tracking-widest pl-1">Username</label>
-            <div className="relative flex items-center group">
-              <span className="absolute left-4 text-gray-400 group-focus-within:text-[#ffd066] transition-colors duration-200">👤</span>
-              <input
-                type="text"
-                name="username"
-                placeholder="Choose a username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                autoComplete="username"
-                className={inputClass("username")}
-              />
-            </div>
-            {errors.username && <p className="text-[10px] text-red-400 pl-1">{errors.username}</p>}
+          <div>
+            <label className="text-sm text-yellow-400 mb-2 block font-semibold">Username</label>
+            <InputWithIcon icon={User} type="text" placeholder="Enter username" value={formData.username} error={errors.username} onChange={(e) => update("username", e.target.value)} />
+            {errors.username && <p className="mt-2 text-sm text-red-400">{errors.username}</p>}
           </div>
 
           {/* Email */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-[10px] font-bold text-[#ffd066]/80 uppercase tracking-widest pl-1">Email Address</label>
-            <div className="relative flex items-center group">
-              <span className="absolute left-4 text-gray-400 group-focus-within:text-[#ffd066] transition-colors duration-200">🙋‍♀️</span>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter email address"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                autoComplete="email"
-                className={inputClass("email")}
-              />
-            </div>
-            {errors.email && <p className="text-[10px] text-red-400 pl-1">{errors.email}</p>}
+          <div>
+            <label className="text-sm text-yellow-400 mb-2 block font-semibold">Email Address</label>
+            <InputWithIcon icon={Mail} type="email" placeholder="Enter email" value={formData.email} error={errors.email} onChange={(e) => update("email", e.target.value)} />
+            {errors.email && <p className="mt-2 text-sm text-red-400">{errors.email}</p>}
           </div>
 
           {/* Password */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-[10px] font-bold text-[#ffd066]/80 uppercase tracking-widest pl-1">Password (6–15 chars)</label>
-            <div className="relative flex items-center group">
-              <span className="absolute left-4 text-gray-400 group-focus-within:text-[#ffd066] transition-colors duration-200">🔒</span>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                minLength={6}
-                maxLength={15}
-                value={formData.password}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                className={`${inputClass("password")} pr-16`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 text-[10px] font-extrabold uppercase text-[#ffd066] hover:text-[#ffe08c] tracking-wider focus:outline-none cursor-pointer"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            {errors.password && <p className="text-[10px] text-red-400 pl-1">{errors.password}</p>}
+          <div>
+            <label className="text-sm text-yellow-400 mb-2 block font-semibold">Password</label>
+            <InputWithIcon icon={Lock} type={showPass ? "text" : "password"} placeholder="Minimum 6 characters" value={formData.password} error={errors.password} onChange={(e) => update("password", e.target.value)} showToggle={showPass} onToggle={() => setShowPass(p => !p)} />
+            {errors.password && <p className="mt-2 text-sm text-red-400">{errors.password}</p>}
           </div>
 
           {/* Confirm Password */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-[10px] font-bold text-[#ffd066]/80 uppercase tracking-widest pl-1">Confirm Password</label>
-            <div className="relative flex items-center group">
-              <span className="absolute left-4 text-gray-400 group-focus-within:text-[#ffd066] transition-colors duration-200">🔒</span>
-              <input
-                type={showConfirm ? "text" : "password"}
-                name="confirmPassword"
-                placeholder="Confirm password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                className={`${inputClass("confirmPassword")} pr-16`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-4 text-[10px] font-extrabold uppercase text-[#ffd066] hover:text-[#ffe08c] tracking-wider focus:outline-none cursor-pointer"
-              >
-                {showConfirm ? "Hide" : "Show"}
-              </button>
-            </div>
-            {errors.confirmPassword && <p className="text-[10px] text-red-400 pl-1">{errors.confirmPassword}</p>}
+          <div>
+            <label className="text-sm text-yellow-400 mb-2 block font-semibold">Confirm Password</label>
+            <InputWithIcon icon={Lock} type={showConfirm ? "text" : "password"} placeholder="Confirm password" value={formData.confirmPassword} error={errors.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} showToggle={showConfirm} onToggle={() => setShowConfirm(p => !p)} />
+            {errors.confirmPassword && <p className="mt-2 text-sm text-red-400">{errors.confirmPassword}</p>}
           </div>
 
           {/* Invitation Code */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-[10px] font-bold text-[#ffd066]/80 uppercase tracking-widest pl-1">Invitation Code</label>
-            <div className="relative flex items-center group">
-              <span className="absolute left-4 text-gray-400 group-focus-within:text-[#ffd066] transition-colors duration-200">⚙️</span>
-              <input
-                type="text"
-                name="invitationCode"
-                value={formData.invitationCode}
-                onChange={handleChange}
-                required
-                className={inputClass("invitationCode")}
-              />
-            </div>
+          <div>
+            <label className="text-sm text-yellow-400 mb-2 block font-semibold">Invitation Code</label>
+            <InputWithIcon icon={KeyRound} type="text" placeholder="TDx3m" value={formData.invitationCode} error={errors.invitationCode} onChange={(e) => update("invitationCode", e.target.value)} />
+            {errors.invitationCode && <p className="mt-2 text-sm text-red-400">{errors.invitationCode}</p>}
           </div>
 
-          {/* Agreement Checkbox */}
-          <div className="pt-2 select-none">
-            <label className="flex items-start gap-3 cursor-pointer text-xs font-semibold text-gray-400 hover:text-gray-300 transition-colors leading-relaxed">
+          {/* Agreement */}
+          <div>
+            <label className="flex items-center gap-3 text-sm text-gray-300 cursor-pointer pt-1">
               <input
                 type="checkbox"
-                name="agree"
                 checked={formData.agree}
-                onChange={handleChange}
-                className="accent-[#d4af37] h-4 w-4 rounded-md border-white/10 bg-white/5 cursor-pointer mt-0.5 shrink-0"
+                onChange={(e) => update("agree", e.target.checked)}
+                className="accent-yellow-400 w-4 h-4 rounded"
               />
-              <span>
-                I know and agree to the{" "}
-                <Link to="#" className="text-[#ffd978] hover:text-[#ffe08c] hover:underline transition-all font-bold">
-                  User Agreement
-                </Link>
-              </span>
+              <span>I agree to the <span className="text-yellow-400">User Agreement</span></span>
             </label>
-            {errors.agree && <p className="text-[10px] text-red-400 pl-7 mt-1">{errors.agree}</p>}
+            {errors.agree && <p className="mt-2 text-sm text-red-400">{errors.agree}</p>}
           </div>
 
-          {/* Register Button */}
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black font-extrabold text-sm tracking-wide shadow-lg shadow-[#d4af37]/10 hover:shadow-[#d4af37]/20 hover:brightness-105 active:scale-[0.98] transition-all duration-200 mt-4 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            whileHover={!loading ? { scale: 1.02, boxShadow: "0 0 40px rgba(255,215,0,0.8)" } : {}}
+            whileTap={!loading ? { scale: 0.97 } : {}}
+            className="w-full py-3.5 rounded-xl font-bold text-black bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 shadow-[0_0_30px_rgba(255,215,0,0.6)] flex items-center justify-center gap-2 disabled:opacity-70"
           >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-4 w-4 text-black" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Creating Account...
-              </>
-            ) : (
-              "REGISTER"
-            )}
-          </button>
-
+            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Creating Account...</> : "Create Account"}
+          </motion.button>
         </form>
 
-        {/* Bottom Navigation */}
-        <div className="text-center mt-8 border-t border-white/[0.06] pt-6">
-          <p className="text-xs text-gray-400">
-            Have an account?{" "}
-            <Link to="/login" className="text-[#ffd978] font-bold hover:underline ml-1">
-              Log in now
-            </Link>
-          </p>
-        </div>
-
+        <p className="text-center text-gray-400 mt-5 text-sm">Already have an account?</p>
+        <Link to="/login" className="block text-center text-yellow-400 font-semibold mt-1 hover:text-yellow-300 transition">
+          Login Now →
+        </Link>
       </motion.div>
     </div>
   );
 }
-
-export default Register;
