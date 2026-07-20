@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;700;800;900&display=swap');
+
 @import "tailwindcss";
 
 * {
@@ -136,6 +137,24 @@ body {
 @media (min-width: 768px) {
   .landing-section {
     padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* ── Page Section Spacer ──
+   Used by single-section inner pages (Companies, Plans, About, Contact,
+   News) that sit directly under the fixed Navbar. Top padding clears the
+   navbar height on its own (matches Hero's pt-20/md:pt-28), so it must NOT
+   be combined with an extra pt-24/md:pt-28 wrapper in the page component —
+   stacking both caused the oversized gap under the navbar on these pages. */
+.page-section {
+  padding-top: 5rem;
+  padding-bottom: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  .page-section {
+    padding-top: 7rem;
     padding-bottom: 6rem;
   }
 }
@@ -311,3 +330,103 @@ body {
   0% { transform: translate(0, 0) rotate(0deg); }
   100% { transform: translate(100vw, -100vh) rotate(360deg); }
 }
+
+/* ─── 3D Perspective Utilities ─────────────────────────────────── */
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 1200px;
+  transition: transform 0.15s ease-out;
+}
+
+.glass-card-3d {
+  background: rgba(10, 15, 28, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.5),
+    0 2px 0 rgba(255, 255, 255, 0.05) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.3) inset;
+}
+
+/* ─── Shimmer Animation ──────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(300%) skewX(-12deg); }
+}
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+  animation: shimmer 2.5s infinite 1s;
+}
+
+/* ─── Gradient Border ─────────────────────────────────────────────── */
+.gradient-border {
+  position: relative;
+  border-radius: 24px;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(212,175,55,0.5), transparent, rgba(212,175,55,0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─── Auth Card Glow ──────────────────────────────────────────────── */
+@keyframes auth-glow {
+  0%, 100% { box-shadow: 0 40px 80px rgba(0,0,0,0.4), 0 0 40px rgba(212,175,55,0.06); }
+  50%       { box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 70px rgba(212,175,55,0.14); }
+}
+.auth-glow {
+  animation: auth-glow 4s ease-in-out infinite;
+}
+
+/* ─── OTP Input ──────────────────────────────────────────────────── */
+.otp-input {
+  width: 44px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 900;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  color: white;
+  outline: none;
+  transition: all 0.2s;
+  font-family: 'Inter', monospace;
+}
+.otp-input:focus {
+  border-color: rgba(212,175,55,0.6);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
+  transform: scale(1.06);
+}
+.otp-input:not(:placeholder-shown) {
+  border-color: rgba(212,175,55,0.5);
+}
+
+/* ─── Floating Card Animation ────────────────────────────────────── */
+@keyframes float-card {
+  0%, 100% { transform: translateY(0px) rotateX(2deg); }
+  50%       { transform: translateY(-14px) rotateX(2deg); }
+}
+.float-card {
+  animation: float-card 6s ease-in-out infinite;
+}
+
+/* ─── 3D Card Hover ──────────────────────────────────────────────── */
+.card-hover-3d {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover-3d:hover {
+  transform: translateY(-10px) rotateX(4deg) rotateY(2deg) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 30px rgba(212,175,55,0.08);
+}

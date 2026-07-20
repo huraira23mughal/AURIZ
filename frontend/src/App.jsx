@@ -22,6 +22,13 @@ import ProfilePage from "./pages/ProfilePage";
 import TasksPage from "./pages/TasksPage";
 import AssetsPage from "./pages/AssetsPage";
 import FinancePage from "./pages/FinancePage";
+import {
+  TeamIncomePage,
+  AccountRecordPage,
+  CustomerServicePage,
+  InviteFriendsPage,
+  UserAgreementPage,
+} from "./pages/ProfileSubPages";
 
 // Admin Panel
 import AdminPage from "./pages/AdminPage";
@@ -105,6 +112,13 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
+        {/* Profile Sub-Pages */}
+        <Route path="/team-income" element={<ProtectedRoute><TeamIncomePage /></ProtectedRoute>} />
+        <Route path="/account-record" element={<ProtectedRoute><AccountRecordPage /></ProtectedRoute>} />
+        <Route path="/customer-service" element={<ProtectedRoute><CustomerServicePage /></ProtectedRoute>} />
+        <Route path="/invite" element={<ProtectedRoute><InviteFriendsPage /></ProtectedRoute>} />
+        <Route path="/user-agreement" element={<ProtectedRoute><UserAgreementPage /></ProtectedRoute>} />
 
         {/* Admin Panel (requires is_staff) */}
         <Route

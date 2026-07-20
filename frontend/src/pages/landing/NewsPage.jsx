@@ -60,7 +60,12 @@ function FadeIn({ children, delay = 0 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 35 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {children}
     </motion.div>
   );
@@ -115,11 +120,10 @@ export default function NewsPage() {
                   onClick={() => setActiveCategory(cat)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
-                    activeCategory === cat
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${activeCategory === cat
                       ? "bg-yellow-400 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)]"
                       : "glass text-gray-300 hover:text-yellow-400"
-                  }`}
+                    }`}
                 >
                   {cat}
                 </motion.button>

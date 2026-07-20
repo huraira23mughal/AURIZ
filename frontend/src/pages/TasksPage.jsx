@@ -14,10 +14,7 @@ export default function TasksPage() {
   const [audioSeconds, setAudioSeconds] = useState(0);
   const [audioPercent, setAudioPercent] = useState(0);
 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(""), 2800);
-  };
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2800); };
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -31,9 +28,7 @@ export default function TasksPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+  useEffect(() => { fetchTasks(); }, [fetchTasks]);
 
   const handleStart = async (taskId) => {
     setActionLoading((p) => ({ ...p, [taskId]: "starting" }));
@@ -70,177 +65,141 @@ export default function TasksPage() {
       setAudioSeconds((prev) => {
         const next = prev + 1;
         setAudioPercent((next / 15) * 100);
-        if (next >= 15) {
-          clearInterval(interval);
-          setIsPlayingAudio(false);
-        }
+        if (next >= 15) { clearInterval(interval); setIsPlayingAudio(false); }
         return next;
       });
     }, 1000);
   };
 
   const handleInvite = () => {
-    const inviteLink = `${window.location.origin}/register?code=AURIZ`;
-    navigator.clipboard.writeText(inviteLink).then(() => {
-      showToast("✅ Invite link copied to clipboard!");
-    });
+    navigator.clipboard.writeText(`${window.location.origin}/register?code=AURIZ`)
+      .then(() => showToast("✅ Invite link copied to clipboard!"));
   };
 
   const statusColor = (s) => {
     if (s === "claimed") return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
-    if (s === "completed") return "text-[#ffd066] bg-[#ffd066]/10 border-[#ffd066]/20";
+    if (s === "completed") return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
     if (s === "inProgress") return "text-sky-400 bg-sky-400/10 border-sky-400/20";
     return "text-gray-400 bg-white/5 border-white/10";
   };
 
-  const taskTypeLabel = (type) => {
-    const labels = { watch_ad: "Activity", deposit: "Deposit", referral: "Ref", daily: "Daily" };
-    return labels[type] || "Task";
-  };
-
-  const taskTypeColor = (type) => {
-    const colors = {
-      watch_ad: "text-sky-400 bg-sky-400/10 border-sky-400/20",
-      deposit: "text-purple-400 bg-purple-400/10 border-purple-400/20",
-      referral: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-      daily: "text-[#ffd066] bg-[#ffd066]/10 border-[#ffd066]/20",
-    };
-    return colors[type] || "text-gray-400 bg-white/5 border-white/10";
-  };
+  const taskTypeLabel = (type) => ({ watch_ad: "Activity", deposit: "Deposit", referral: "Ref", daily: "Daily" }[type] || "Task");
+  const taskTypeColor = (type) => ({
+    watch_ad: "text-sky-400 bg-sky-400/10 border-sky-400/20",
+    deposit: "text-purple-400 bg-purple-400/10 border-purple-400/20",
+    referral: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
+    daily: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
+  }[type] || "text-gray-400 bg-white/5 border-white/10");
 
   return (
     <MobileLayout>
-      {/* Header */}
-      <div
-        className="px-4 pt-12 pb-5"
-        style={{
-          background: "linear-gradient(180deg, rgba(212, 175, 55, 0.04) 0%, transparent 100%)",
-          borderBottom: "1px solid rgba(212, 175, 55, 0.1)",
-        }}
-      >
+      {/* ── Header ── */}
+      <div className="px-4 pt-12 pb-5 relative"
+        style={{ background: "rgba(10,10,20,0.8)", borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent" />
         <h1 className="text-2xl font-black text-white">
-          Earning <span style={{ color: "#ffd066" }}>Tasks</span>
+          Earning <span className="bg-gradient-to-r from-yellow-300 to-amber-500 bg-clip-text text-transparent">Tasks</span>
         </h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Complete daily tasks to accumulate voucher points.
-        </p>
+        <p className="text-sm text-gray-500 mt-1">Complete daily tasks to accumulate voucher points.</p>
       </div>
 
       <div className="px-4 py-4 space-y-4 pb-28">
 
-        {/* Voucher summary card */}
-        <div className="bg-gradient-to-br from-[#ffd978] to-[#b8860b] rounded-3xl p-5 shadow-lg text-black">
-          <span className="text-[10px] text-black/70 block uppercase tracking-wider font-bold">My Vouchers</span>
-          <h2 className="text-3xl font-black text-black mt-1 mb-3">{summary.vouchers}</h2>
-          <div className="flex gap-4">
-            <div>
-              <span className="text-[9px] text-black/60 block">Completed</span>
-              <span className="text-sm font-black">{summary.completed}</span>
-            </div>
-            <div className="w-px bg-black/10" />
-            <div>
-              <span className="text-[9px] text-black/60 block">In Progress</span>
-              <span className="text-sm font-black">{summary.will_complete}</span>
-            </div>
-            <div className="w-px bg-black/10" />
-            <div>
-              <span className="text-[9px] text-black/60 block">Total</span>
-              <span className="text-sm font-black">{tasks.length}</span>
+        {/* ── Voucher Summary Card ── */}
+        <div className="rounded-3xl p-5 relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #b8860b, #d4af37, #ffd978, #d4af37)", boxShadow: "0 8px 32px rgba(212,175,55,0.25)" }}>
+          {/* Frosted overlay */}
+          <div className="absolute inset-0 rounded-3xl" style={{ background: "rgba(0,0,0,0.15)" }} />
+          <div className="relative z-10">
+            <span className="text-[10px] text-black/70 block uppercase tracking-wider font-bold">My Vouchers</span>
+            <h2 className="text-3xl font-black text-black mt-1 mb-3">{summary.vouchers}</h2>
+            <div className="flex gap-5">
+              {[
+                { label: "Completed", value: summary.completed },
+                { label: "In Progress", value: summary.will_complete },
+                { label: "Total", value: tasks.length },
+              ].map((s, i) => (
+                <div key={i} className="flex-1">
+                  <span className="text-[9px] text-black/60 block">{s.label}</span>
+                  <span className="text-sm font-black text-black">{s.value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Loading state */}
+        {/* ── Loading ── */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <svg className="animate-spin h-8 w-8 text-[#ffd066]" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
+            <div className="w-8 h-8 rounded-full border-2 border-transparent border-t-yellow-400 animate-spin" />
             <span className="text-xs text-gray-500">Loading tasks...</span>
           </div>
         )}
 
-        {/* Tasks from API */}
+        {/* ── API Tasks ── */}
         {!loading && tasks.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {tasks.map((ut) => {
               const task = ut.task;
               const isLoading = !!actionLoading[task.id];
               const isClaimed = ut.status === "claimed";
               const isCompleted = ut.status === "completed";
               const isInProgress = ut.status === "inProgress";
-              const isUnstarted = ut.status === "unstarted";
 
               return (
-                <motion.div
-                  key={ut.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex justify-between items-center gap-3 hover:border-white/10 transition"
+                <motion.div key={ut.id}
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  className="rounded-2xl p-4 flex justify-between items-center gap-3 transition-all hover:border-white/10"
+                  style={{ background: "rgba(18,24,40,0.6)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)" }}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded uppercase border ${taskTypeColor(task.task_type)}`}>
+                      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase border ${taskTypeColor(task.task_type)}`}>
                         {taskTypeLabel(task.task_type)}
                       </span>
                       {isClaimed && (
-                        <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded uppercase border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+                        <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
                           ✓ Done
                         </span>
                       )}
                     </div>
                     <h4 className="text-xs font-black text-white">{task.title}</h4>
-                    {task.description && (
-                      <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">{task.description}</p>
-                    )}
+                    {task.description && <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">{task.description}</p>}
 
-                    {/* Progress bar */}
                     {(isInProgress || isCompleted) && task.total_steps > 1 && (
                       <div className="mt-2">
-                        <div className="h-1 bg-white/10 rounded overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-[#ffd978] to-[#d4af37] transition-all duration-300"
-                            style={{ width: `${ut.progress_pct}%` }}
-                          />
+                        <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                          <div className="h-full rounded-full transition-all duration-300"
+                            style={{ width: `${ut.progress_pct}%`, background: "linear-gradient(90deg, #FFD978, #D4AF37)" }} />
                         </div>
-                        <span className="text-[8px] text-gray-500 mt-0.5 block">{ut.progress}/{task.total_steps} steps</span>
+                        <span className="text-[8px] text-gray-600 mt-0.5 block">{ut.progress}/{task.total_steps} steps</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2 mt-1.5">
-                      {task.reward_points > 0 && (
-                        <span className="text-[10px] font-bold text-[#ffd978]">+{task.reward_points} Vouchers</span>
-                      )}
-                      {task.reward_amount > 0 && (
-                        <span className="text-[10px] font-bold text-emerald-400">+${parseFloat(task.reward_amount).toFixed(2)}</span>
-                      )}
+                      {task.reward_points > 0 && <span className="text-[10px] font-bold text-yellow-400">+{task.reward_points} Vouchers</span>}
+                      {task.reward_amount > 0 && <span className="text-[10px] font-bold text-emerald-400">+${parseFloat(task.reward_amount).toFixed(2)}</span>}
                     </div>
                   </div>
 
                   <div className="flex-shrink-0">
                     {isClaimed ? (
-                      <span className="px-3.5 py-1.5 text-[10px] font-black rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                      <span className="px-3.5 py-1.5 text-[10px] font-black rounded-xl text-emerald-400"
+                        style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)" }}>
                         Claimed
                       </span>
                     ) : isCompleted ? (
-                      <button
-                        onClick={() => handleClaim(task.id)}
-                        disabled={isLoading}
-                        className="px-3.5 py-1.5 text-[10px] font-black rounded-lg bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black hover:opacity-90 transition cursor-pointer disabled:opacity-60"
-                      >
+                      <button onClick={() => handleClaim(task.id)} disabled={isLoading}
+                        className="px-3.5 py-1.5 text-[10px] font-black rounded-xl text-black hover:opacity-90 transition disabled:opacity-60"
+                        style={{ background: "linear-gradient(135deg, #FFD978, #D4AF37)" }}>
                         {isLoading ? "..." : "Claim"}
                       </button>
                     ) : (
-                      <button
-                        onClick={() => handleStart(task.id)}
-                        disabled={isLoading}
-                        className={`px-3.5 py-1.5 text-[10px] font-black rounded-lg transition cursor-pointer disabled:opacity-60 ${
-                          isInProgress
-                            ? "bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20"
-                            : "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black hover:opacity-90"
-                        }`}
-                      >
+                      <button onClick={() => handleStart(task.id)} disabled={isLoading}
+                        className={`px-3.5 py-1.5 text-[10px] font-black rounded-xl transition disabled:opacity-60 ${isInProgress
+                          ? "text-sky-400 border border-sky-500/20 hover:bg-sky-500/10"
+                          : "text-black hover:opacity-90"}`}
+                        style={!isInProgress ? { background: "linear-gradient(135deg, #FFD978, #D4AF37)" } : { background: "rgba(56,189,248,0.08)" }}>
                         {isLoading ? "..." : isInProgress ? "Continue" : "Start"}
                       </button>
                     )}
@@ -251,68 +210,57 @@ export default function TasksPage() {
           </div>
         )}
 
-        {/* Extra local tasks (Audio, Invite) */}
+        {/* ── Static Tasks (Audio, Invite) ── */}
         {!loading && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Audio Task */}
-            <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex justify-between items-center gap-3">
+            <div className="rounded-2xl p-4 flex justify-between items-center gap-3"
+              style={{ background: "rgba(18,24,40,0.6)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)" }}>
               <div className="flex-1">
-                <span className="inline-block text-[9px] font-bold text-sky-400 bg-sky-400/10 border border-sky-400/20 px-2 py-0.5 rounded uppercase mb-1">
-                  Activity
-                </span>
-                <h4 className="text-xs font-black text-white">Watch &amp; Listen Release Promo</h4>
-                <p className="text-[10px] text-gray-400 mt-0.5">Play 15s audio clip of upcoming album releases.</p>
-                <div className="flex items-center gap-2 mt-2.5 bg-white/[0.02] border border-white/5 p-1.5 rounded-lg max-w-[200px]">
-                  <button
-                    type="button"
-                    onClick={playPromo}
-                    className={`text-[9px] font-bold px-2 py-1 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black rounded cursor-pointer ${isPlayingAudio ? "opacity-50" : ""}`}
-                  >
+                <span className="inline-block text-[9px] font-bold text-sky-400 bg-sky-400/10 border border-sky-400/20 px-2 py-0.5 rounded-lg uppercase mb-1.5">Activity</span>
+                <h4 className="text-xs font-black text-white">Watch & Listen Release Promo</h4>
+                <p className="text-[10px] text-gray-500 mt-0.5">Play 15s audio clip of upcoming album releases.</p>
+                <div className="flex items-center gap-2 mt-2.5 rounded-xl p-2 max-w-[200px]"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <button type="button" onClick={playPromo}
+                    className={`text-[9px] font-bold px-2 py-1 rounded-lg text-black ${isPlayingAudio ? "opacity-50" : ""}`}
+                    style={{ background: "linear-gradient(135deg, #FFD978, #D4AF37)" }}>
                     {isPlayingAudio ? "Playing" : "▶ Play"}
                   </button>
-                  <div className="flex-1 h-1 bg-white/10 rounded overflow-hidden">
-                    <div className="h-full bg-[#ffd066] transition-all duration-100" style={{ width: `${audioPercent}%` }} />
+                  <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div className="h-full bg-yellow-400 transition-all duration-100" style={{ width: `${audioPercent}%` }} />
                   </div>
-                  <span className="text-[8px] font-mono text-gray-400">
-                    0:{audioSeconds < 10 ? "0" + audioSeconds : audioSeconds} / 0:15
-                  </span>
+                  <span className="text-[8px] font-mono text-gray-500">0:{audioSeconds < 10 ? "0" + audioSeconds : audioSeconds}/0:15</span>
                 </div>
-                <div className="text-[10px] font-bold text-[#ffd978] mt-1.5">+10 Vouchers</div>
+                <div className="text-[10px] font-bold text-yellow-400 mt-1.5">+10 Vouchers</div>
               </div>
-              <button
-                onClick={() => audioSeconds >= 15 && showToast("🎵 Audio listening voucher applied!")}
+              <button onClick={() => audioSeconds >= 15 && showToast("🎵 Audio listening voucher applied!")}
                 disabled={audioSeconds < 15}
-                className={`px-3.5 py-1.5 text-[10px] font-black rounded-lg transition flex-shrink-0 ${
-                  audioSeconds >= 15
-                    ? "bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black cursor-pointer"
-                    : "bg-white/5 text-gray-500 cursor-not-allowed"
-                }`}
-              >
+                className={`px-3.5 py-1.5 text-[10px] font-black rounded-xl transition flex-shrink-0 ${audioSeconds >= 15 ? "text-black cursor-pointer hover:opacity-90" : "text-gray-600 cursor-not-allowed"}`}
+                style={{ background: audioSeconds >= 15 ? "linear-gradient(135deg, #FFD978, #D4AF37)" : "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
                 Claim
               </button>
             </div>
 
             {/* Invite Task */}
-            <div className="bg-[#151c2c]/40 border border-white/5 rounded-2xl p-3.5 flex justify-between items-center gap-3">
+            <div className="rounded-2xl p-4 flex justify-between items-center gap-3"
+              style={{ background: "rgba(18,24,40,0.6)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)" }}>
               <div className="flex-1">
-                <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded uppercase mb-1">
-                  Ref
-                </span>
+                <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-lg uppercase mb-1.5">Ref</span>
                 <h4 className="text-xs font-black text-white">Invite 1 subordinate to join</h4>
-                <p className="text-[10px] text-gray-400 mt-0.5">Grow your investment team network.</p>
-                <div className="text-[10px] font-bold text-[#ffd978] mt-1.5">+25 Vouchers</div>
+                <p className="text-[10px] text-gray-500 mt-0.5">Grow your investment team network.</p>
+                <div className="text-[10px] font-bold text-yellow-400 mt-1.5">+25 Vouchers</div>
               </div>
-              <button
-                onClick={handleInvite}
-                className="px-3.5 py-1.5 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[10px] font-black rounded-lg cursor-pointer hover:opacity-90 transition flex-shrink-0"
-              >
+              <button onClick={handleInvite}
+                className="px-3.5 py-1.5 text-[10px] font-black rounded-xl text-black cursor-pointer hover:opacity-90 transition flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #FFD978, #D4AF37)" }}>
                 Invite
               </button>
             </div>
           </div>
         )}
 
-        {/* Empty state */}
+        {/* ── Empty State ── */}
         {!loading && tasks.length === 0 && (
           <div className="text-center py-12">
             <p className="text-4xl mb-3">📋</p>
@@ -320,18 +268,14 @@ export default function TasksPage() {
             <p className="text-xs text-gray-500 mt-1">Check back soon for new earning opportunities.</p>
           </div>
         )}
-
       </div>
 
-      {/* Toast */}
+      {/* ── Toast ── */}
       <AnimatePresence>
         {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 60, x: "-50%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 bg-gradient-to-r from-[#ffd978] to-[#d4af37] text-black text-[11px] font-bold px-5 py-2.5 rounded-full shadow-lg z-50"
-          >
+          <motion.div initial={{ opacity: 0, y: 60, x: "-50%" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 text-black text-[11px] font-bold px-5 py-2.5 rounded-full shadow-lg z-50"
+            style={{ background: "linear-gradient(135deg, #FFD978, #D4AF37)" }}>
             {toast}
           </motion.div>
         )}

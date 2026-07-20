@@ -52,12 +52,24 @@ const categories = ["All", "Major Label", "Streaming", "Events", "Ticketing", "A
 function FadeIn({ children, delay = 0, direction = "up" }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
+      x: direction === "left" ? 40 : direction === "right" ? -40 : 0,
+      scale: direction === "scale" ? 0.85 : 1,
+    },
+    visible: { opacity: 1, y: 0, x: 0, scale: 1 },
+  };
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: direction === "up" ? 30 : 0, scale: direction === "scale" ? 0.9 : 1 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={variants}
+      transition={{ duration: 0.65, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       {children}
     </motion.div>
@@ -121,11 +133,10 @@ export default function CompaniesPage() {
                   onClick={() => setActiveCategory(cat)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                    activeCategory === cat
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeCategory === cat
                       ? "bg-yellow-400 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)]"
                       : "glass text-gray-300 hover:text-yellow-400 hover:border-yellow-400/30"
-                  }`}
+                    }`}
                 >
                   {cat}
                 </motion.button>
